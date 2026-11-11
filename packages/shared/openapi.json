@@ -1125,6 +1125,22 @@
         }
       }
     },
+    "/v1/integrations/weather/abu-dhabi": {
+      "get": {
+        "summary": "Get Abu Dhabi Weather",
+        "operationId": "get_abu_dhabi_weather_v1_integrations_weather_abu_dhabi_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/demo/switch-persona/{persona_id}": {
       "post": {
         "summary": "Switch Demo Persona",
