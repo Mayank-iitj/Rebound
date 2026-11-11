@@ -51,9 +51,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
                 </span>
               </div>
               <p className="text-xs text-slate-500 max-w-md">
-                {locale === 'ar'
-                  ? 'مؤشر استمرارية مرن: احتساب أيام السماح والتكيف، دون أي تصفير أو انقطاع عند التعثر.'
-                  : 'Measures persistence over rolling 28-day windows. Grace days protect denominator. Missed days never reset to zero.'}
+                Measures persistence over rolling 28-day windows. Grace days protect denominator. Missed days never reset to zero.
               </p>
             </div>
           </div>
@@ -67,7 +65,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
             <div className="p-3 bg-sand-100 border border-sand-200 rounded-xl text-center min-w-[120px]">
               <span className="block text-2xl font-black text-slate-800">{rhl}d</span>
               <span className="text-[11px] font-medium text-slate-600">
-                {locale === 'ar' ? 'عمر نصف التعافي (RHL)' : 'Recovery Half-Life'}
+                Recovery Half-Life (RHL)
               </span>
             </div>
           </div>
@@ -77,18 +75,18 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
       {/* 2. Comebacks Timeline */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <div className="flex items-center space-x-2">
             <HeartHandshake className="w-5 h-5 text-teal-700" />
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-              {locale === 'ar' ? 'سجل العودات المحققة (قوة الصمود)' : 'Verified Comebacks Timeline'}
+              Verified Comebacks Timeline
             </h3>
           </div>
           <button
             onClick={() => setShowTable(!showTable)}
-            className="flex items-center space-x-1 rtl:space-x-reverse text-xs text-teal-700 hover:text-teal-900 font-medium"
+            className="flex items-center space-x-1 text-xs text-teal-700 hover:text-teal-900 font-medium"
           >
             <TableIcon className="w-3.5 h-3.5" />
-            <span>{showTable ? (locale === 'ar' ? 'عرض بياني' : 'Visual View') : (locale === 'ar' ? 'عرض جدول للوصولية' : 'Accessible Table')}</span>
+            <span>{showTable ? 'Visual View' : 'Accessible Table'}</span>
           </button>
         </div>
 
@@ -97,11 +95,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
             <table className="w-full text-xs text-start border-collapse">
               <thead>
                 <tr className="bg-sand-50 border-b border-sand-200 text-slate-700 font-semibold">
-                  <th className="p-2.5 text-start">{locale === 'ar' ? 'الحدث' : 'Event'}</th>
-                  <th className="p-2.5 text-start">{locale === 'ar' ? 'التوقيت' : 'When'}</th>
-                  <th className="p-2.5 text-start">{locale === 'ar' ? 'أيام العودة' : 'Days to Return'}</th>
-                  <th className="p-2.5 text-start">{locale === 'ar' ? 'السبب المعالج' : 'Trigger Handled'}</th>
-                  <th className="p-2.5 text-start">{locale === 'ar' ? 'المستوى' : 'Level'}</th>
+                  <th className="p-2.5 text-start">Event</th>
+                  <th className="p-2.5 text-start">When</th>
+                  <th className="p-2.5 text-start">Days to Return</th>
+                  <th className="p-2.5 text-start">Trigger Handled</th>
+                  <th className="p-2.5 text-start">Level</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,25 +122,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
                 key={idx}
                 className="p-4 rounded-xl bg-sand-50/70 border border-sand-200 flex flex-wrap items-center justify-between gap-3"
               >
-                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <div className="flex items-center space-x-3">
                   <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs shrink-0">
                     #{totalComebacks - idx}
                   </span>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">
-                      {locale === 'ar'
-                        ? `عودة بعد ${cb.trigger === 'shift_swap' ? 'مناوبة ليلية' : cb.trigger === 'heatwave' ? 'موجة حر' : 'سفر'}`
-                        : `Comeback after ${cb.trigger.replace('_', ' ')}`}
+                      Comeback after {cb.trigger.replace('_', ' ')}
                     </h4>
                     <span className="text-[11px] text-slate-500">
-                      {cb.days_ago} {locale === 'ar' ? 'يوماً مضت' : 'days ago'} · {locale === 'ar' ? 'المستوى المستأنف:' : 'Resumed on:'} {cb.level.toUpperCase()}
+                      {cb.days_ago} days ago · Resumed on: {cb.level.toUpperCase()}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <div className="flex items-center space-x-2">
                   <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
-                    {locale === 'ar' ? `عُدت في ${cb.days_to_return} أيام` : `Returned in ${cb.days_to_return} days`} ✓
+                    Returned in {cb.days_to_return} days ✓
                   </span>
                 </div>
               </div>
@@ -154,12 +150,10 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ locale, progressData
       {/* 3. New Metric Explanation Card: RHL */}
       <div className="bg-white rounded-2xl p-5 border border-sand-200 shadow-xs">
         <h4 className="text-xs font-bold text-teal-900 uppercase tracking-wide mb-1">
-          {locale === 'ar' ? 'المعيار الجديد: عمر نصف التعافي (Recovery Half-Life)' : 'New Standard Metric: Recovery Half-Life (RHL)'}
+          New Standard Metric: Recovery Half-Life (RHL)
         </h4>
         <p className="text-xs text-slate-600 leading-relaxed">
-          {locale === 'ar'
-            ? 'يقيس ريبوند المدة بالأيام بين قاع الانقطاع واستعادة نصف المستوى المفقود. في التطبيقات المعتادة يستغرق المستخدم 16.5 يوماً للعودة بعد التعثر أو ينقطع كلياً؛ بينما مع ريبوند يستعيد المستخدم توازنه في 2.1 يوماً.'
-            : 'Recovery Half-Life (ml-spec §7) measures the days from the post-disruption trough until half of lost volume is regained. Rebound cuts RHL from 16.5 days to 2.1 days by replacing streak guilt with elastic levels and personal recovery rules.'}
+          Recovery Half-Life (ml-spec §7) measures the days from the post-disruption trough until half of lost volume is regained. Rebound cuts RHL from 16.5 days to 2.1 days by replacing streak guilt with elastic levels and personal recovery rules.
         </p>
       </div>
     </div>

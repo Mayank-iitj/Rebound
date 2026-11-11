@@ -39,11 +39,8 @@ export const DemoBar: React.FC<DemoBarProps> = ({
   const handlePersonaChange = async (p: string) => {
     sound.playTap();
     setActivePersona(p);
-    const res = await switchPersona(p);
-    if (p === 'fatima') setLocale('ar');
-    else if (p === 'rajesh') setLocale('hi');
-    else if (p === 'omar') setLocale('ar');
-    else setLocale('en');
+    await switchPersona(p);
+    setLocale('en');
     onRefreshData();
     showToast(`Switched persona to: ${p.toUpperCase()}`);
   };
@@ -90,24 +87,24 @@ export const DemoBar: React.FC<DemoBarProps> = ({
           )}
 
           {/* Persona selector buttons */}
-          <div className="flex items-center space-x-1 rtl:space-x-reverse bg-slate-800 p-0.5 rounded-md border border-slate-700">
+          <div className="flex items-center space-x-1 bg-slate-800 p-0.5 rounded-md border border-slate-700">
             <button
               onClick={() => handlePersonaChange('fatima')}
               className={`px-2 py-0.5 rounded transition ${activePersona === 'fatima' ? 'bg-teal-600 text-white font-semibold' : 'text-slate-300 hover:text-white'}`}
             >
-              فاطمة (Nurse)
+              Fatima (Nurse)
             </button>
             <button
               onClick={() => handlePersonaChange('rajesh')}
               className={`px-2 py-0.5 rounded transition ${activePersona === 'rajesh' ? 'bg-teal-600 text-white font-semibold' : 'text-slate-300 hover:text-white'}`}
             >
-              राजेश (Worker)
+              Rajesh (Worker)
             </button>
             <button
               onClick={() => handlePersonaChange('omar')}
               className={`px-2 py-0.5 rounded transition ${activePersona === 'omar' ? 'bg-teal-600 text-white font-semibold' : 'text-slate-300 hover:text-white'}`}
             >
-              عمر (Adaptive)
+              Omar (Adaptive)
             </button>
             <button
               onClick={() => handlePersonaChange('mariam')}

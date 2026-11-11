@@ -19,9 +19,9 @@ export async function fetchToday() {
       {
         plan_action_id: "act_fatima_walk",
         catalog_id: "mv_walk",
-        title: { en: "Short walk", ar: "مشي خفيف", hi: "हल्की सैर" },
+        title: { en: "Short walk" },
         suggested_level: "min",
-        cue: { en: "After waking up", ar: "بعد الاستيقاظ من النوم" },
+        cue: { en: "After waking up" },
         window: "17:00–19:00",
         options: { min: 2, std: 10, stretch: 20 },
         completed: null
@@ -29,9 +29,9 @@ export async function fetchToday() {
       {
         plan_action_id: "act_fatima_winddown",
         catalog_id: "sl_wind_down",
-        title: { en: "Wind-down routine", ar: "روتين الاسترخاء", hi: "सोने से पहले शांति" },
+        title: { en: "Wind-down routine" },
         suggested_level: "min",
-        cue: { en: "Before day sleep", ar: "قبل النوم الصباحي" },
+        cue: { en: "Before day sleep" },
         window: "07:30–08:30",
         options: { min: 2, std: 10, stretch: 20 },
         completed: null
@@ -141,7 +141,7 @@ export async function answerFlightRecorder(lapseId: string, chip?: string, text?
   return {
     barrier: { value: "SHIFT_WORK", confidence: 0.88 },
     proposed_rule: {
-      text: "إذا فاتني يومان بعد تبديل المناوبة الليلية، سأقوم بـ إطالة لدقيقتين في أول يوم إجازة.",
+      text: "If I miss 2 days post-shift transition, I will do a 2-minute stretch on my first day off.",
       trigger: { context: "shift_swap", condition: "missed_days>=2" },
       action: { level: "min", catalog_id: "mv_stretch_2", when: "first_day_off" }
     },
@@ -273,7 +273,7 @@ export async function testGovernorMessage(message: string, tags: string[] = []) 
   } catch (e) {}
   
   const lower = message.toLowerCase();
-  if (lower.includes('fail') || lower.includes('streak') || lower.includes('lazy') || lower.includes('فشل')) {
+  if (lower.includes('fail') || lower.includes('streak') || lower.includes('lazy') || lower.includes('shame')) {
     return {
       decision: "block",
       rule_ids: ["R1"],
@@ -295,7 +295,7 @@ export async function switchPersona(personaId: string) {
     const res = await fetch(`${API_BASE}/demo/switch-persona/${personaId}`, { method: 'POST' });
     if (res.ok) return await res.json();
   } catch (e) {}
-  return { user_id: `usr_${personaId}_demo`, locale: personaId === 'rajesh' ? 'hi' : personaId === 'fatima' ? 'ar' : 'en' };
+  return { user_id: `usr_${personaId}_demo`, locale: 'en' };
 }
 
 export async function simulateLapse() {

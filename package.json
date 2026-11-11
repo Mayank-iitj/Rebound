@@ -1,0 +1,28 @@
+{
+  "name": "rebound-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Rebound — Adaptive Behavior-Change Platform Engineered for the Bad Week",
+  "scripts": {
+    "start": "python run.py",
+    "dev": "python run.py",
+    "build": "pnpm -C apps/web run build",
+    "dev:web": "pnpm -C apps/web run dev",
+    "typecheck": "pnpm -C apps/web exec tsc --noEmit",
+    "test:api": "python apps/api/tests/test_full_suite.py",
+    "test:core": "python apps/api/tests/test_rebound_core.py",
+    "seed": "python scripts/seed.py",
+    "sim": "python scripts/sim.py --users 5000",
+    "openapi": "python scripts/export_openapi.py"
+  },
+  "keywords": [
+    "health",
+    "behavior-change",
+    "resilience",
+    "wellbeing",
+    "habit-twin",
+    "ethics-governor"
+  ],
+  "author": "Rebound Team",
+  "license": "Apache-2.0"
+}

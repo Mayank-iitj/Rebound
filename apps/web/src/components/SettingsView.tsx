@@ -50,34 +50,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ locale }) => {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* 1. Header */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs">
-        <div className="flex items-center space-x-2 rtl:space-x-reverse mb-1">
+        <div className="flex items-center space-x-2 mb-1">
           <span className="p-1 rounded-lg bg-teal-100 text-teal-800">
             <SettingsIcon className="w-5 h-5 text-teal-700" />
           </span>
           <h2 className="text-xl font-bold text-slate-900">
-            {locale === 'ar' ? 'الإعدادات والتحكم بالبيانات' : 'Settings & Data Control'}
+            Settings & Data Control
           </h2>
         </div>
         <p className="text-xs text-slate-500 max-w-xl">
-          {locale === 'ar'
-            ? 'أنت المتحكم الكامل في أهدافك وتنبيهاتك وكل مصدر بيانات على حدة دون أي افتراضات مسبقة.'
-            : 'You have full autonomy over every data source, notification window, and nudging frequency.'}
+          You have full autonomy over every data source, notification window, and nudging frequency.
         </p>
       </div>
 
       {/* 2. Granular Data Source Consents */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-          {locale === 'ar' ? 'أذونات مصادر البيانات (مفصولة ومستقلة)' : 'Granular Data Permissions (Independent Toggles)'}
+          Granular Data Permissions (Independent Toggles)
         </h3>
 
         <div className="space-y-3">
           {[
-            { id: "notifications", title: locale === 'ar' ? "التنبيهات اللطيفة" : "Supportive Nudges", desc: "Allows timely suggestions matching your active window." },
-            { id: "weather_location", title: locale === 'ar' ? "مؤشر الطقس والحرارة بأبوظبي" : "Abu Dhabi Weather & Heat Index", desc: "Used to detect 40°C+ summer heat stress and switch to indoor routines." },
-            { id: "wearable", title: locale === 'ar' ? "الساعات والأجهزة القابلة للارتداء" : "Wearable & Smartwatch Sync", desc: "Optional sleep & heart rate sync. Defaults to OFF." },
-            { id: "health_age", title: locale === 'ar' ? "بيانات Health Age" : "Health Age Integration", desc: "Simulated health score sync. Controlled by user." },
-            { id: "research_aggregate", title: locale === 'ar' ? "المساهمة في الأبحاث الإجمالية المشفرة" : "Aggregate Research Contribution", desc: "Contributes to k>=20 differential privacy cohorts. Zero individual rows ever leave." }
+            { id: "notifications", title: "Supportive Nudges", desc: "Allows timely suggestions matching your active window." },
+            { id: "weather_location", title: "Abu Dhabi Weather & Heat Index", desc: "Used to detect 40°C+ summer heat stress and switch to indoor routines." },
+            { id: "wearable", title: "Wearable & Smartwatch Sync", desc: "Optional sleep & heart rate sync. Defaults to OFF." },
+            { id: "health_age", title: "Health Age Integration", desc: "Simulated health score sync. Controlled by user." },
+            { id: "research_aggregate", title: "Aggregate Research Contribution", desc: "Contributes to k>=20 differential privacy cohorts. Zero individual rows ever leave." }
           ].map(sc => (
             <div key={sc.id} className="p-3.5 rounded-xl bg-sand-50/70 border border-sand-200 flex items-center justify-between gap-4">
               <div>
@@ -100,17 +98,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ locale }) => {
       {/* 3. Nudge Budget & Quiet Hours */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-          {locale === 'ar' ? 'ميزانية التنبيهات وساعات النوم والهدوء' : 'Nudge Budget & Quiet Hours'}
+          Nudge Budget & Quiet Hours
         </h3>
 
         <div className="space-y-4 text-xs">
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="font-semibold text-slate-800">
-                {locale === 'ar' ? 'الحد الأقصى للتنبيهات اليومية:' : 'Daily Nudge Cap:'} {budget} / day
+                Daily Nudge Cap: {budget} / day
               </span>
               <span className="text-slate-500 text-[11px]">
-                {locale === 'ar' ? 'يمنع الحاكم أي تجاوز لهذه الميزانية' : 'Governor strictly enforces this cap'}
+                Governor strictly enforces this cap
               </span>
             </div>
             <input
@@ -125,14 +123,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ locale }) => {
           </div>
 
           <div className="p-3.5 rounded-xl bg-sand-50 border border-sand-200 flex items-center justify-between">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <div className="flex items-center space-x-2">
               <Moon className="w-4 h-4 text-teal-700" />
               <div>
                 <span className="font-bold text-slate-900 block">
-                  {locale === 'ar' ? 'ساعات الهدوء والنوم' : 'Quiet Sleep Window'}
+                  Quiet Sleep Window
                 </span>
                 <span className="text-[11px] text-slate-500">
-                  {locale === 'ar' ? '08:00 صباحاً – 03:00 مساءً (مناوبة ليلية)' : '22:00 – 07:00 (Night shift adapted)'}
+                  22:00 – 07:00 (Night shift adapted)
                 </span>
               </div>
             </div>
@@ -143,14 +141,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ locale }) => {
 
           {/* Low Literacy Audio Mode */}
           <div className="p-3.5 rounded-xl bg-sand-50 border border-sand-200 flex items-center justify-between">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <div className="flex items-center space-x-2">
               <Volume2 className="w-4 h-4 text-teal-700" />
               <div>
                 <span className="font-bold text-slate-900 block">
-                  {locale === 'ar' ? 'نمط الوصولية الصوتية والمبسطة' : 'Low-Literacy & Audio Mode'}
+                  Low-Literacy & Audio Mode
                 </span>
                 <span className="text-[11px] text-slate-500">
-                  {locale === 'ar' ? 'نصوص أكبر، أيقونات واضحة، وإرشادات صوتية' : 'Larger 18px text, icon-first, voice prompts (Rajesh mode)'}
+                  Larger 18px text, icon-first, voice prompts (Rajesh mode)
                 </span>
               </div>
             </div>
@@ -168,25 +166,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ locale }) => {
       {/* 4. Export & Audit Trail */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-          {locale === 'ar' ? 'تصدير البيانات وسجل التدقيق المشفر' : 'Data Portability & Cryptographic Audit Trail'}
+          Data Portability & Cryptographic Audit Trail
         </h3>
 
         <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-sand-50 border border-sand-200">
           <div>
             <h4 className="text-xs font-bold text-slate-900">
-              {locale === 'ar' ? 'تصدير نسختك الكاملة (JSON / CSV)' : 'Export Full Data Package'}
+              Export Full Data Package
             </h4>
             <p className="text-[11px] text-slate-500">
-              {locale === 'ar' ? 'تنزيل فوري لجميع خططك وعوداتك وأذوناتك في أقل من 5 ثوانٍ' : 'Download all your logs, recovery rules, and consent ledgers in < 5 seconds.'}
+              Download all your logs, recovery rules, and consent ledgers in &lt; 5 seconds.
             </p>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{exported ? (locale === 'ar' ? 'تم التصدير ✓' : 'Exported ✓') : (locale === 'ar' ? 'تصدير البيانات' : 'Export JSON')}</span>
+            <span>{exported ? 'Exported ✓' : 'Export JSON'}</span>
           </button>
         </div>
 

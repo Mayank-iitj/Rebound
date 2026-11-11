@@ -18,9 +18,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
   const [analyzing, setAnalyzing] = useState(false);
   const [classifiedBarrier, setClassifiedBarrier] = useState<string>("SHIFT_WORK");
   const [proposedRule, setProposedRule] = useState<any>({
-    text: locale === 'ar'
-      ? "إذا فاتني يومان بعد تبديل المناوبة الليلية، سأقوم بـ إطالة لدقيقتين في أول يوم إجازة."
-      : "If I miss two days after a night shift, I will do a 2-minute gentle stretch on my first day off.",
+    text: "If I miss two days after a night shift, I will do a 2-minute gentle stretch on my first day off.",
     trigger: { context: "shift_swap", condition: "missed_days>=2" },
     action: { level: "min", catalog_id: "mv_stretch_2", when: "first_day_off" }
   });
@@ -28,9 +26,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
   const [activeRules, setActiveRules] = useState<any[]>([
     {
       id: "rule_1",
-      text: locale === 'ar'
-        ? "إذا فاتني يومان بعد تبديل المناوبة الليلية، سأقوم بـ إطالة لدقيقتين في أول يوم إجازة."
-        : "If I miss two days after a night shift, I will do a 2-minute gentle stretch on my first day off.",
+      text: "If I miss two days after a night shift, I will do a 2-minute gentle stretch on my first day off.",
       barrier: "SHIFT_WORK"
     }
   ]);
@@ -102,7 +98,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
               {t.flightRecorder.replayTitle}
             </span>
             <span className="text-xs text-slate-500 font-medium">
-              {locale === 'ar' ? 'أسبوع تبديل المناوبة والحرارة' : 'Shift swap & heat week'}
+              Shift swap & heat week
             </span>
           </div>
 
@@ -111,9 +107,9 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
               { day: "Mon", status: "done", chip: null },
               { day: "Tue", status: "done", chip: null },
               { day: "Wed", status: "done", chip: null },
-              { day: "Thu", status: "missed", chip: locale === 'ar' ? "مناوبة" : "Shift" },
-              { day: "Fri", status: "missed", chip: locale === 'ar' ? "حر 44°" : "44°C" },
-              { day: "Sat", status: "done", chip: locale === 'ar' ? "عودة" : "Back" },
+              { day: "Thu", status: "missed", chip: "Shift" },
+              { day: "Fri", status: "missed", chip: "44°C" },
+              { day: "Sat", status: "done", chip: "Back" },
               { day: "Sun", status: "done", chip: null }
             ].map((d, i) => (
               <div key={i} className="flex flex-col items-center p-2 rounded-xl bg-white border border-sand-200 shadow-xs">
@@ -141,7 +137,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
         <div>
           <h3 className="text-base font-bold text-slate-900 mb-1">{t.flightRecorder.question}</h3>
           <p className="text-xs text-slate-500">
-            {locale === 'ar' ? 'اختر العائق أو اكتبه لتحويله فوراً إلى قاعدة تعافٍ' : 'Select or describe the blocker to generate an automated if-then rule.'}
+            Select or describe the blocker to generate an automated if-then rule.
           </p>
         </div>
 
@@ -163,12 +159,12 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
         </div>
 
         {/* Free text input */}
-        <div className="flex items-center space-x-2 rtl:space-x-reverse pt-2">
+        <div className="flex items-center space-x-2 pt-2">
           <input
             type="text"
             value={customText}
             onChange={(e) => setCustomText(e.target.value)}
-            placeholder={locale === 'ar' ? 'أو صف ما حدث بكلماتك (مثال: أسبوع مناوبات ليلية شاقة)...' : 'Or describe what happened in your own words...'}
+            placeholder="Or describe what happened in your own words..."
             className="flex-1 px-3.5 py-2 rounded-xl text-xs border border-sand-300 focus:outline-hidden focus:ring-2 focus:ring-teal-600 bg-sand-50/50"
           />
           <button
@@ -176,7 +172,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
             disabled={analyzing}
             className="px-3.5 py-2 rounded-xl bg-teal-700 text-white text-xs font-bold hover:bg-teal-800 transition disabled:opacity-50"
           >
-            {analyzing ? '...' : (locale === 'ar' ? 'تحليل' : 'Analyze')}
+            {analyzing ? '...' : 'Analyze'}
           </button>
         </div>
 
@@ -197,13 +193,13 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
 
           <div className="flex items-center justify-between pt-1">
             <span className="text-[11px] text-teal-800/80">
-              {locale === 'ar' ? 'سيتم تفعيل هذه القاعدة تلقائياً عند تكرار نفس الظرف في المستقبل' : 'This rule will automatically trigger whenever this situation recurs.'}
+              This rule will automatically trigger whenever this situation recurs.
             </span>
 
             <button
               onClick={handleAcceptRule}
               disabled={isAccepted}
-              className={`flex items-center space-x-1.5 rtl:space-x-reverse px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs ${
+              className={`flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs ${
                 isAccepted
                   ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                   : 'bg-teal-700 hover:bg-teal-800 text-white'
@@ -219,7 +215,7 @@ export const FlightRecorderView: React.FC<FlightRecorderViewProps> = ({ locale }
       {/* 5. Active Recovery Rules Inventory */}
       <div className="bg-white rounded-2xl p-5 border border-sand-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-          {locale === 'ar' ? 'قواعد التعافي النشطة في خطتك' : 'Active Recovery Rules'} ({activeRules.length})
+          Active Recovery Rules ({activeRules.length})
         </h3>
 
         <div className="space-y-2.5">

@@ -486,9 +486,9 @@ export const PitchDeckView: React.FC<PitchDeckViewProps> = ({ onNavigateTab, onS
             </p>
           </div>
           <div className="bg-sand-50 p-4 rounded-2xl border border-sand-200 space-y-2">
-            <span className="font-bold text-teal-800 text-sm block">Multilingual RTL & Low-Literacy</span>
+            <span className="font-bold text-teal-800 text-sm block">Global Inclusivity & Audio Accessibility</span>
             <p className="text-slate-600 leading-relaxed">
-              Genuine Arabic RTL design, Hindi support, and Web Speech API audio narration for outdoor and frontline workers (Rajesh persona).
+              Clean English interface with Web Speech API audio narration for outdoor and frontline workers (Rajesh persona).
             </p>
           </div>
           <div className="bg-sand-50 p-4 rounded-2xl border border-sand-200 space-y-2">

@@ -43,12 +43,12 @@ export const JudgeTourModal: React.FC<JudgeTourModalProps> = ({
       badge: "Step 1 of 6 · The Foundation",
       title: "Fatima's Context & Real-World Constraints",
       headline: "Built for the Bad Week, not just the Good One",
-      description: "Meet Fatima: a night-shift ICU nurse in Abu Dhabi. Traditional apps assume an uninterrupted 9-to-5 schedule and punish disrupted streaks. Rebound operates in native Arabic RTL, honors granular consents (UAE PDPL), and adapts to 12h shifts and 42°C heat.",
+      description: "Meet Fatima: a night-shift ICU nurse in Abu Dhabi. Traditional apps assume an uninterrupted 9-to-5 schedule and punish disrupted streaks. Rebound adapts to real human shift work, honors granular consents (UAE PDPL), and adapts to 12h shifts and 42°C heat.",
       targetTab: "today",
       actionText: "View Today's Adaptive Screen",
       triggerPersona: "fatima",
       takeaways: [
-        "Native Arabic RTL layout with hospital shift detection",
+        "Hospital shift detection and real-world GCC heat adaptivity",
         "Granular per-stream consent (no opaque health data sharing)",
         "Zero streak counter: 28-day rolling consistency removes guilt"
       ]

@@ -19,8 +19,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   onComplete
 }) => {
   const [step, setStep] = useState(1);
-  const [userName, setUserName] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState<Locale>('ar');
+  const [userName, setUserName] = useState('Fatima');
+  const selectedLanguage = 'en';
   
   // Consents
   const [consents, setConsents] = useState({
@@ -53,8 +53,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     } else {
       sound.playComebackFanfare();
       onComplete({
-        name: userName || (selectedLanguage === 'ar' ? 'فاطمة' : 'User'),
-        locale: selectedLanguage,
+        name: userName || 'Fatima',
+        locale: 'en',
         habitDomain,
         habitGoal,
         constraints,
@@ -115,56 +115,45 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
-          {/* STEP 1: Language & Identity */}
+          {/* STEP 1: Identity & Name */}
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <h4 className="text-base font-bold text-slate-900">Choose your preferred language</h4>
-                <p className="text-xs text-slate-600 mt-1">Rebound supports native Arabic RTL, Hindi, and English with audio accessibility.</p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  type="button"
-                  onClick={() => { sound.playTap(); setSelectedLanguage('ar'); }}
-                  className={`p-3 rounded-2xl border text-center transition ${
-                    selectedLanguage === 'ar' ? 'border-teal-700 bg-teal-50 text-teal-900 font-bold shadow-2xs' : 'border-sand-200 bg-sand-50 hover:bg-sand-100 text-slate-700'
-                  }`}
-                >
-                  <span className="text-base block">العربية</span>
-                  <span className="text-[11px] text-slate-500 block">Arabic (RTL)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { sound.playTap(); setSelectedLanguage('en'); }}
-                  className={`p-3 rounded-2xl border text-center transition ${
-                    selectedLanguage === 'en' ? 'border-teal-700 bg-teal-50 text-teal-900 font-bold shadow-2xs' : 'border-sand-200 bg-sand-50 hover:bg-sand-100 text-slate-700'
-                  }`}
-                >
-                  <span className="text-base block">English</span>
-                  <span className="text-[11px] text-slate-500 block">English</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { sound.playTap(); setSelectedLanguage('hi'); }}
-                  className={`p-3 rounded-2xl border text-center transition ${
-                    selectedLanguage === 'hi' ? 'border-teal-700 bg-teal-50 text-teal-900 font-bold shadow-2xs' : 'border-sand-200 bg-sand-50 hover:bg-sand-100 text-slate-700'
-                  }`}
-                >
-                  <span className="text-base block">हिन्दी</span>
-                  <span className="text-[11px] text-slate-500 block">Hindi</span>
-                </button>
+                <h4 className="text-base font-bold text-slate-900">What should Rebound call you?</h4>
+                <p className="text-xs text-slate-600 mt-1">Set up your personalized Habit Twin profile.</p>
               </div>
 
               <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-bold text-slate-700">What should Rebound call you?</label>
+                <label className="text-xs font-bold text-slate-700">Your Name or Role:</label>
                 <input
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder={selectedLanguage === 'ar' ? 'مثال: فاطمة' : 'e.g. Fatima'}
+                  placeholder="e.g. Fatima, Rajesh, or Mariam"
                   className="w-full px-3 py-2 rounded-xl border border-sand-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-700/20 focus:border-teal-700"
                 />
+              </div>
+
+              <div className="pt-2 space-y-2">
+                <label className="text-xs font-bold text-slate-700">Quick Persona Presets:</label>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => { sound.playTap(); setUserName("Fatima"); }}
+                    className="p-2.5 rounded-xl border border-sand-200 bg-sand-50 hover:bg-sand-100 text-left transition"
+                  >
+                    <span className="font-bold text-slate-800 block">Fatima</span>
+                    <span className="text-[11px] text-slate-500">Night ICU Nurse</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { sound.playTap(); setUserName("Rajesh"); }}
+                    className="p-2.5 rounded-xl border border-sand-200 bg-sand-50 hover:bg-sand-100 text-left transition"
+                  >
+                    <span className="font-bold text-slate-800 block">Rajesh</span>
+                    <span className="text-[11px] text-slate-500">Outdoor Worker</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

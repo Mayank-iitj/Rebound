@@ -112,13 +112,13 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
             </div>
             <p className="text-xs text-teal-900/80 mt-1">
               {survivability.survived >= 5
-                ? (locale === 'ar' ? 'ممتاز! خطتك صامدة أمام معظم أزمات الحياة الواقعية.' : 'Plan is resilient! It survives 5 out of 6 major disruption scenarios.')
-                : (locale === 'ar' ? 'الخطة هشة وتحتاج تطبيق التعديلات المقترحة أدناه.' : 'Plan is fragile. Apply suggested one-tap fixes below.')}
+                ? 'Plan is resilient! It survives 5 out of 6 major disruption scenarios.'
+                : 'Plan is fragile. Apply suggested one-tap fixes below.'}
             </p>
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+          <div className="flex items-center space-x-1.5">
             {[...Array(survivability.total)].map((_, i) => (
               <span
                 key={i}
@@ -136,7 +136,7 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
       {/* 3. Six Disruption Scenarios Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {scenarios.map((sc: any) => {
-          const title = typeof sc.title === 'object' ? (sc.title[locale] || sc.title['en']) : sc.id;
+          const title = typeof sc.title === 'object' ? (sc.title['en'] || sc.id) : sc.id;
           const isOk = sc.survived;
 
           return (
@@ -196,7 +196,7 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
             </h3>
           </div>
           <span className="text-xs text-slate-500">
-            {locale === 'ar' ? 'حلول محسوبة ترفع الصمود بدون إرهاق' : 'Algorithmic patches to guarantee survival'}
+            Algorithmic patches to guarantee survival
           </span>
         </div>
 
@@ -210,7 +210,7 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
                 className="p-3.5 rounded-xl bg-sand-50/70 border border-sand-200 flex flex-wrap items-center justify-between gap-3"
               >
                 <div className="flex-1">
-                  <div className="flex items-center space-x-2 rtl:space-x-reverse mb-0.5">
+                  <div className="flex items-center space-x-2 mb-0.5">
                     <span className="font-bold text-xs text-slate-900">{patch.title}</span>
                     <span className="text-[10px] px-1.5 py-0.2 rounded-sm bg-teal-100 text-teal-800 font-semibold">
                       +1 {t.crashtest.survived}
@@ -222,7 +222,7 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
                 <button
                   onClick={() => handleApplyPatch(patch.id)}
                   disabled={isApplied}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-1.5 rtl:space-x-reverse ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-1.5 ${
                     isApplied
                       ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                       : 'bg-teal-700 hover:bg-teal-800 text-white'
@@ -242,9 +242,9 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-5 border border-sand-300 shadow-xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-sand-200">
-              <h3 className="font-bold text-base text-slate-900 flex items-center space-x-2 rtl:space-x-reverse">
+              <h3 className="font-bold text-base text-slate-900 flex items-center space-x-2">
                 <ShieldCheck className="w-5 h-5 text-teal-700" />
-                <span>{locale === 'ar' ? 'فرضيات ونموذج محاكاة التوأم الرقمي' : 'Habit Twin Simulator Assumptions'}</span>
+                <span>Habit Twin Simulator Assumptions</span>
               </h3>
               <button onClick={() => setShowAssumptions(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold">
                 ✕
@@ -252,22 +252,18 @@ export const CrashTestView: React.FC<CrashTestViewProps> = ({ locale }) => {
             </div>
             <div className="text-xs text-slate-600 space-y-2.5 max-h-96 overflow-y-auto">
               <p>
-                {locale === 'ar' 
-                  ? 'نموذج محاكاة مونت كارلو (ml-spec §3) يختبر صمود الخطة رقمياً قبل التزام المستخدم عبر المعادلة الاحتمالية:'
-                  : 'Vectorized Monte Carlo habit completion simulation (ml-spec §3) runs 300 iterations per scenario:'}
+                Vectorized Monte Carlo habit completion simulation (ml-spec §3) runs 300 iterations per scenario:
               </p>
               <div className="p-2.5 rounded-lg bg-sand-100 font-mono text-[11px] text-slate-800">
                 p(a,t) = σ( β0 + β1·C_t + β2·fit(window) + β3·cue + β4·H_t − β5·diff − β6·friction )
               </div>
               <ul className="space-y-1 list-disc list-inside text-slate-700">
-                <li><strong>{locale === 'ar' ? 'المعاملات الافتراضية:' : 'Default Weights:'}</strong> β0 = -0.6, β1 = 2.2 (Capacity), β2 = 1.0 (Window fit), β4 = 1.4 (Habit strength).</li>
-                <li><strong>{locale === 'ar' ? 'معيار الصمود:' : 'Survival Criterion:'}</strong> ≥ 60% completion during scenario + return to baseline within 7 days.</li>
-                <li><strong>{locale === 'ar' ? 'حتمية النتائج:' : 'Determinism:'}</strong> Seeded RNG ensures fully reproducible outputs for clinical audits.</li>
+                <li><strong>Default Weights:</strong> β0 = -0.6, β1 = 2.2 (Capacity), β2 = 1.0 (Window fit), β4 = 1.4 (Habit strength).</li>
+                <li><strong>Survival Criterion:</strong> ≥ 60% completion during scenario + return to baseline within 7 days.</li>
+                <li><strong>Determinism:</strong> Seeded RNG ensures fully reproducible outputs for clinical audits.</li>
               </ul>
               <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px]">
-                {locale === 'ar'
-                  ? 'ملاحظة صدق علمية: معاملات المحاكاة هي فرضيات تصميم للتحقق المبكر وليست دليلاً سريرياً نهائياً.'
-                  : 'Honesty statement: Simulator parameters are transparent design hypotheses, not clinical evidence.'}
+                Honesty statement: Simulator parameters are transparent design hypotheses, not clinical evidence.
               </div>
             </div>
             <button

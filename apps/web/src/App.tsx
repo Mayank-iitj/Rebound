@@ -25,7 +25,7 @@ import {
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'app'>('landing');
-  const [locale, setLocale] = useState<Locale>('ar');  // Default Arabic for Fatima
+  const [locale, setLocale] = useState<Locale>('en');  // Strictly English
   const [activePersona, setActivePersona] = useState<string>('fatima');
   const [activeTab, setActiveTab] = useState<string>('today');
   const [todayData, setTodayData] = useState<any>(null);
@@ -35,10 +35,10 @@ export const App: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
   useEffect(() => {
-    // Set HTML dir and lang
-    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = locale;
-  }, [locale]);
+    // English LTR standard
+    document.documentElement.dir = 'ltr';
+    document.documentElement.lang = 'en';
+  }, []);
 
   useEffect(() => {
     loadAllData();
@@ -59,7 +59,7 @@ export const App: React.FC = () => {
         return;
       }
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = locale === 'ar' ? 'ar-SA' : locale === 'hi' ? 'hi-IN' : 'en-US';
+      utterance.lang = 'en-US';
       utterance.onend = () => setSpeechActive(false);
       utterance.onerror = () => setSpeechActive(false);
       setSpeechActive(true);
@@ -78,7 +78,7 @@ export const App: React.FC = () => {
     { id: 'program', label: t.tabs.program, icon: BarChart3 },
     { id: 'simLab', label: t.tabs.simLab, icon: FlaskConical },
     { id: 'governor', label: t.tabs.governor, icon: ShieldAlert },
-    { id: 'deck', label: locale === 'ar' ? 'عرض الشرائح' : 'Pitch Deck', icon: Presentation },
+    { id: 'deck', label: 'Pitch Deck', icon: Presentation },
     { id: 'settings', label: t.tabs.settings, icon: SettingsIcon },
   ];
 
@@ -149,24 +149,20 @@ export const App: React.FC = () => {
               })}
             </div>
 
-            {/* Accessibility Audio Button (Rajesh Mode) */}
+            {/* Accessibility Audio Button */}
             <button
               onClick={() => handleAudioReadAloud(
-                locale === 'ar'
-                  ? 'مرحباً بك في ريبوند. خطتك مصممة للأسبوع الصعب. طاقة اليوم تقترح المستوى البسيط لدقيقتين للحفاظ على استمراريتك دون أي لوم.'
-                  : locale === 'hi'
-                  ? 'रीबाउंड में आपका स्वागत है। आपकी योजना मुश्किल सप्ताह के लिए बनाई गई है। 2 मिनट का न्यूनतम स्तर भी पूरी तरह गिना जाएगा।'
-                  : 'Welcome to Rebound. Built for the bad week. Today suggests the 2-minute Minimum version to protect your consistency without guilt.'
+                'Welcome to Rebound. Built for the bad week. Today suggests the 2-minute Minimum version to protect your consistency without guilt.'
               )}
-              title="Read aloud in current language"
-              className={`hidden sm:flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border text-xs font-medium transition shrink-0 ${
+              title="Read aloud"
+              className={`hidden sm:flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-xs font-medium transition shrink-0 ${
                 speechActive
                   ? 'bg-amber-100 text-amber-900 border-amber-300 animate-pulse font-bold'
                   : 'bg-sand-50 text-slate-700 border-sand-200 hover:bg-sand-100'
               }`}
             >
               {speechActive ? <VolumeX className="w-3.5 h-3.5 text-amber-700" /> : <Volume2 className="w-3.5 h-3.5 text-teal-700" />}
-              <span>{speechActive ? (locale === 'ar' ? 'إيقاف الصوت' : 'Stop Audio') : (locale === 'ar' ? 'استماع صوتي' : 'Listen')}</span>
+              <span>{speechActive ? 'Stop Audio' : 'Listen'}</span>
             </button>
           </div>
         </nav>
@@ -180,10 +176,7 @@ export const App: React.FC = () => {
             onLaunchApp={() => setCurrentView('app')}
             onSelectPersona={(personaId) => {
               setActivePersona(personaId);
-              if (personaId === 'fatima') setLocale('ar');
-              else if (personaId === 'rajesh') setLocale('hi');
-              else if (personaId === 'omar') setLocale('ar');
-              else setLocale('en');
+              setLocale('en');
               setCurrentView('app');
             }}
             onOpenJudgeTour={() => setShowJudgeTour(true)}
@@ -259,10 +252,7 @@ export const App: React.FC = () => {
         }}
         onSelectPersona={(p) => {
           setActivePersona(p);
-          if (p === 'fatima') setLocale('ar');
-          else if (p === 'rajesh') setLocale('hi');
-          else if (p === 'omar') setLocale('ar');
-          else setLocale('en');
+          setLocale('en');
         }}
         onSimulateLapse={async () => {
           await simulateLapse();
@@ -275,7 +265,7 @@ export const App: React.FC = () => {
         isOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
         onComplete={(newProfile) => {
-          if (newProfile.locale) setLocale(newProfile.locale);
+          setLocale('en');
           setCurrentView('app');
           setActiveTab('today');
           loadAllData();

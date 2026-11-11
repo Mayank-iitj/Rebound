@@ -84,10 +84,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   sound.playTap();
                   onOpenPitchDeck();
                 }}
-                className="flex items-center space-x-2 rtl:space-x-reverse px-6 py-3.5 rounded-2xl bg-white hover:bg-sand-50 text-slate-800 font-bold text-sm border border-sand-300 shadow-2xs transition"
+                className="flex items-center space-x-2 px-6 py-3.5 rounded-2xl bg-white hover:bg-sand-50 text-slate-800 font-bold text-sm border border-sand-300 shadow-2xs transition"
               >
                 <Presentation className="w-4 h-4 text-teal-700" />
-                <span>{locale === 'ar' ? 'عرض الشرائح' : 'Pitch Deck (12 Slides)'}</span>
+                <span>Pitch Deck (12 Slides)</span>
               </button>
             )}
 
@@ -136,18 +136,16 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <Zap className="w-5 h-5 text-amber-600" />
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-                  {locale === 'ar' ? 'جرّب التوأم الرقمي الحي لاختبار الصمود' : 'Live Interactive Habit Twin Crash-Test'}
+                  Live Interactive Habit Twin Crash-Test
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                {locale === 'ar' 
-                  ? 'شاهد كيف تسقط خطة العادة التقليدية أمام الأزمات، وكيف يرفعها تعديل ريبوند البسيط بنقرة واحدة إلى 5 من 6.'
-                  : 'Watch a fragile plan fail real life disruptions, and see how Rebound\'s one-tap patch fixes it.'}
+                Watch a fragile plan fail real-life disruptions, and see how Rebound's one-tap patch fixes it.
               </p>
             </div>
 
             {/* Live Survivability Score */}
-            <div className="flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-2xl bg-sand-50 border border-sand-200">
+            <div className="flex items-center space-x-3 p-3 rounded-2xl bg-sand-50 border border-sand-200">
               <div className="text-start">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">
                   {t.crashtest.gaugeTitle}
@@ -156,7 +154,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   {survivabilityCount} of 6
                 </span>
               </div>
-              <div className="flex items-center space-x-1 rtl:space-x-reverse">
+              <div className="flex items-center space-x-1">
                 {[...Array(6)].map((_, i) => (
                   <span
                     key={i}
@@ -172,15 +170,15 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           {/* Disruption Scenarios Toggle */}
           <div className="space-y-4">
             <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-              {locale === 'ar' ? 'اختر سيناريو الأزمة لاختبار الخطة:' : 'Select Disruption Scenario to Test:'}
+              Select Disruption Scenario to Test:
             </span>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {[
-                { id: "night_shift", label: locale === 'ar' ? "أسبوع مناوبات ليلية" : "Night-Shift Week", icon: Moon, failReason: "Walk scheduled at 07:00 when asleep after shift." },
-                { id: "heatwave", label: locale === 'ar' ? "موجة حر صيفية (44°C)" : "Summer Heat (44°C)", icon: Flame, failReason: "Outdoor heat index unsafe between 10:00–17:00." },
-                { id: "ramadan", label: locale === 'ar' ? "صيام وتغير روتين رمضان" : "Ramadan Routine", icon: Clock, failReason: "Daytime hydration & energy windows shifted." },
-                { id: "work_crunch", label: locale === 'ar' ? "ضغط عمل طارئ (12 ساعة)" : "Work Crunch (12h)", icon: AlertTriangle, failReason: "Time scarcity blocks standard 20-min session." }
+                { id: "night_shift", label: "Night-Shift Week", icon: Moon, failReason: "Walk scheduled at 07:00 when asleep after shift." },
+                { id: "heatwave", label: "Summer Heat (44°C)", icon: Flame, failReason: "Outdoor heat index unsafe between 10:00–17:00." },
+                { id: "ramadan", label: "Ramadan Routine", icon: Clock, failReason: "Daytime hydration & energy windows shifted." },
+                { id: "work_crunch", label: "Work Crunch (12h)", icon: AlertTriangle, failReason: "Time scarcity blocks standard 20-min session." }
               ].map((sc) => {
                 const Icon = sc.icon;
                 const isSelected = activeScenario === sc.id;
@@ -204,7 +202,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             {/* Test Simulation Card */}
             <div className="p-4 rounded-2xl bg-sand-50/70 border border-sand-200 flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-1 max-w-xl">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <div className="flex items-center space-x-2">
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
                     simActivePatch ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                   }`}>
@@ -216,15 +214,15 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
                   {simActivePatch
-                    ? (locale === 'ar' ? 'تم نقل نافذة المشي إلى ما بعد الاستيقاظ (17:00) مع إتاحة بديل الإطالة لدقيقتين. الخطة تصمد بنجاح!' : 'Walk window shifted to post-wake (17:00) with 2-minute gentle stretch fallback. Plan thrives!')
-                    : (locale === 'ar' ? 'الخطة التقليدية تجبرك على المشي في الصباح الباكر بينما أنت نائم بعد مناوبة ليلية شاقة. تفشل الخطة وتنقطع السلسلة.' : 'Traditional plan forces rigid 07:00 morning walk while you are sleeping after hospital shift. Routine breaks.')}
+                    ? 'Walk window shifted to post-wake (17:00) with 2-minute gentle stretch fallback. Plan thrives!'
+                    : 'Traditional plan forces rigid 07:00 morning walk while you are sleeping after hospital shift. Routine breaks.'}
                 </p>
               </div>
 
               {/* One-Tap Fix Button */}
               <button
                 onClick={() => setSimActivePatch(!simActivePatch)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-2 rtl:space-x-reverse ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-2 ${
                   simActivePatch
                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                     : 'bg-teal-700 hover:bg-teal-800 text-white'
@@ -233,8 +231,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <Sparkles className="w-4 h-4" />
                 <span>
                   {simActivePatch
-                    ? (locale === 'ar' ? 'تم تفعيل التعديل (+38% صمود) ✓' : 'Patch Applied (+38% Lift) ✓')
-                    : (locale === 'ar' ? 'تطبيق تعديل ريبوند بنقرة واحدة' : 'Apply One-Tap Rebound Fix')}
+                    ? 'Patch Applied (+38% Lift) ✓'
+                    : 'Apply One-Tap Rebound Fix'}
                 </span>
               </button>
             </div>
@@ -306,9 +304,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         {/* Persona Selector Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto">
           {[
-            { id: 'fatima', name: 'فاطمة (Nurse)', role: 'Night-Shift Nurse (Arabic)', city: 'Abu Dhabi' },
-            { id: 'rajesh', name: 'राजेश (Worker)', role: 'Outdoor Heat & Smoking (Hindi)', city: 'Mussafah' },
-            { id: 'omar', name: 'عمر (Adaptive)', role: 'Wheelchair Adaptive Movement', city: 'Abu Dhabi' },
+            { id: 'fatima', name: 'Fatima (Nurse)', role: 'Night-Shift Nurse', city: 'Abu Dhabi' },
+            { id: 'rajesh', name: 'Rajesh (Worker)', role: 'Frontline Worker', city: 'Mussafah' },
+            { id: 'omar', name: 'Omar (Adaptive)', role: 'Wheelchair Adaptive Movement', city: 'Abu Dhabi' },
             { id: 'mariam', name: 'Mariam (Office)', role: 'Sedentary Office & Hydration', city: 'Al Maryah' }
           ].map((p) => (
             <button
@@ -332,64 +330,67 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-xs max-w-3xl mx-auto">
           {activePersonaTab === 'fatima' && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-lg">
-                  ف
+                  F
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">فاطمة (Fatima, 34) — ممرضة مناوبات ليلية بأبوظبي</h4>
+                  <h4 className="text-base font-bold text-slate-900">Fatima (34) — Night-Shift Nurse (Abu Dhabi)</h4>
                   <p className="text-xs text-slate-500">Rotating night shifts · 4.5h daytime sleep · Movement & Sleep goals</p>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                "قبل ريبوند، كنت أفشل دائماً لأن كل التطبيقات تفترض نوماً ليلياً عادياً وتطلب المشي صباحاً. ريبوند اختبر خطتي، واكتشف أن أسبوع المناوبات يعطل نافذة المشي، فنقلها تلقائياً إلى الساعة 17:00 بعد استيقاظي، وأضاف خيار الإطالة لدقيقتين. عندما انقطعت ليومين، لم تلمني السلسلة، وقاعدة التعافي أعادتني في 48 ساعة."
+                "Before Rebound, I always dropped off because apps assumed standard day routines and forced morning walks. Rebound stress-tested my plan, detected that night shift week clashed with the walk window, moved it to 17:00 post-wake, and added a 2-minute gentle stretch fallback. When I missed 2 days, no streak was broken, and the recovery rule brought me back within 48 hours."
               </p>
               <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-xs text-slate-700 font-medium">
-                <strong>قاعدة التعافي النشطة لفاطمة:</strong> "إذا فاتني يومان بعد تبديل المناوبة الليلية، سأقوم بـ إطالة لدقيقتين في أول يوم إجازة."
+                <strong>Fatima's Active Recovery Rule:</strong> "If I miss 2 days post-shift transition, I will do a 2-minute stretch on my first day off."
               </div>
             </div>
           )}
 
           {activePersonaTab === 'rajesh' && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-lg">
-                  र
+                  R
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">राजेश (Rajesh, 41) — निर्माण कार्यकर्ता (Construction Worker)</h4>
+                  <h4 className="text-base font-bold text-slate-900">Rajesh (41) — Frontline Construction Worker (Mussafah)</h4>
                   <p className="text-xs text-slate-500">Outdoor 44°C heat · Low-literacy audio mode · Smoking reduction</p>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                "काम पर भारी गर्मी और थकान रहती है। रीबाउंड मुझे कभी दोष नहीं देता। जब गर्मी 42 डिग्री पार होती है, यह तुरंत कमरे के अंदर पानी पीने और 2 मिनट गहरी सांस लेने का सुझाव देता है। सहयोगी लिंक द्वारा विक्रम मुझे केवल एक दोस्ताना नमस्ते भेजता है — कोई शर्मिंदगी नहीं।"
+                "Working under 44°C heat causes heavy exhaustion. Rebound never shames me. When heat exceeds 42°C, it immediately suggests indoor hydration and 2-minute deep breathing. Through the supporter link, Vikram just sends me a friendly hello — zero health data leakage, zero embarrassment."
               </p>
               <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-xs text-slate-700 font-medium">
-                <strong>राजेश का सहयोगी लिंक:</strong> विक्रम (मित्र) को शून्य स्वास्थ्य डेटा के साथ मित्रवत अनुस्मारक।
+                <strong>Rajesh's Supporter Link:</strong> Vikram (Friend) receives friendly nudge prompts with zero raw biometric data.
               </div>
             </div>
           )}
 
           {activePersonaTab === 'omar' && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-lg">
-                  ع
+                  O
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">عمر (Omar, 52) — مستخدم الكرسي المتحرك (Wheelchair User)</h4>
-                  <p className="text-xs text-slate-500">Adapted movement · Seated mobility routine · Zero step bias</p>
+                  <h4 className="text-base font-bold text-slate-900">Omar (52) — Adaptive Movement (Abu Dhabi)</h4>
+                  <p className="text-xs text-slate-500">Wheelchair user · Seated mobility routine · Zero step bias</p>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                "معظم التطبيقات تفترض عدّ 10,000 خطوة كمعيار وحيد للصحة وتجعلني أشعر بالعجز. ريبوند يوفر مكتبة حركية مخصصة للجلوس والكرسي المتحرك، ويقيس التزامي بتمارين الجذع والذراعين دون أي تحيز لخطوات القدمين."
+                "Most apps assume 10,000 steps is the sole health metric and make me feel excluded. Rebound provides a dedicated seated mobility library and measures my upper-body consistency with zero step bias."
               </p>
+              <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-xs text-slate-700 font-medium">
+                <strong>Omar's Adaptive Route:</strong> Focuses on seated chest openers, torso rotation, and arm pulses.
+              </div>
             </div>
           )}
 
           {activePersonaTab === 'mariam' && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-lg">
                   M
                 </div>
@@ -414,7 +415,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               {t.landing.metricTitle}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              {locale === 'ar' ? 'عمر نصف التعافي: المقياس الحقيقي للصمود' : 'Recovery Half-Life: The Metric That Matters'}
+              Recovery Half-Life: The Metric That Matters
             </h2>
             <p className="text-xs sm:text-sm text-teal-100/90 leading-relaxed">
               {t.landing.metricDesc}
@@ -428,9 +429,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </span>
               <span className="text-3xl sm:text-4xl font-extrabold text-white">2.1 Days</span>
               <p className="text-xs text-teal-100/80">
-                {locale === 'ar' 
-                  ? 'بفضل الخطة المرنة وقواعد التعافي الشخصية، يعود المستخدم إلى عادته خلال 48 ساعة فقط بعد الأزمة.'
-                  : 'Fast recovery without shame. Users regain 50% of lost volume in under 48 hours.'}
+                Fast recovery without shame. Users regain 50% of lost volume in under 48 hours with elastic routines.
               </p>
             </div>
 
@@ -440,9 +439,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </span>
               <span className="text-3xl sm:text-4xl font-extrabold text-slate-400">16.5 Days</span>
               <p className="text-xs text-slate-400">
-                {locale === 'ar'
-                  ? 'تصفير السلاسل والشعور بالذنب يسبب الانقطاع التام أو التأخر لأكثر من أسبوعين قبل المحاولة مجدداً.'
-                  : 'Streak shaming and rigid targets cause dropout or a 2+ week delay before attempting to restart.'}
+                Streak shaming and rigid targets cause dropout or a 2+ week delay before attempting to restart.
               </p>
             </div>
           </div>
@@ -452,19 +449,17 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* 6. Bottom Final Launch Callout */}
       <section className="max-w-5xl mx-auto px-4 text-center space-y-4">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          {locale === 'ar' ? 'جاهز لبناء خطة تصمد أمام الحياة الحقيقية؟' : 'Ready for a plan that survives real life?'}
+          Ready for a plan that survives real life?
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
-          {locale === 'ar'
-            ? 'ابدأ الآن مع ريبوند واختبر خطتك مجاناً بأعلى معايير الخصوصية والأخلاقيات.'
-            : 'Explore the live adaptive daily loop, test the Habit Twin simulator, and view verifiable cohort analytics.'}
+          Explore the live adaptive daily loop, test the Habit Twin simulator, and view verifiable cohort analytics.
         </p>
         <button
           onClick={onLaunchApp}
-          className="inline-flex items-center space-x-2 rtl:space-x-reverse px-8 py-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
+          className="inline-flex items-center space-x-2 px-8 py-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
         >
           <span>{t.landing.ctaApp}</span>
-          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+          <ArrowRight className="w-4 h-4" />
         </button>
       </section>
     </div>

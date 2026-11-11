@@ -50,23 +50,21 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
                 <FlaskConical className="w-5 h-5 text-teal-700" />
               </span>
               <h2 className="text-xl font-bold text-slate-900">
-                {locale === 'ar' ? 'مختبر المحاكاة السلوكية (5000 مستخدم اصطناعي)' : 'Simulation Lab (5,000 Synthetic Agents)'}
+                Simulation Lab (5,000 Synthetic Agents)
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-1 max-w-xl">
-              {locale === 'ar'
-                ? 'يقارن النموذج الرياضي صمود ريبوند (B3) مقابل التطبيقات التقليدية (B0) ورسائل التذكير المعتادة (B1) عبر 24 أسبوعاً.'
-                : 'Empirical agent-based simulation study evaluating 4 arms over 24 weeks under realistic disruption processes.'}
+              Empirical agent-based simulation study evaluating 4 arms over 24 weeks under realistic disruption processes.
             </p>
           </div>
 
           <button
             onClick={runSim}
             disabled={running}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${running ? 'animate-spin' : ''}`} />
-            <span>{running ? 'Running Monte Carlo...' : (locale === 'ar' ? 'تشغيل المحاكاة' : 'Re-run Study')}</span>
+            <span>{running ? 'Running Monte Carlo...' : 'Re-run Study'}</span>
           </button>
         </div>
 
@@ -74,7 +72,7 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
         <div className="p-4 rounded-xl bg-sand-50/80 border border-sand-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <label className="font-semibold text-slate-700 block mb-1">
-              {locale === 'ar' ? 'حجم العينة الاصطناعية (N):' : 'Synthetic Cohort (N):'} {nUsers.toLocaleString()}
+              Synthetic Cohort (N): {nUsers.toLocaleString()}
             </label>
             <input
               type="range"
@@ -89,7 +87,7 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
 
           <div>
             <label className="font-semibold text-slate-700 block mb-1">
-              {locale === 'ar' ? 'معدل ضغط الأزمات:' : 'Disruption Stress Multiplier:'} {disruption}x
+              Disruption Stress Multiplier: {disruption}x
             </label>
             <input
               type="range"
@@ -104,9 +102,9 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
 
           <div>
             <label className="font-semibold text-slate-700 block mb-1">
-              {locale === 'ar' ? 'بذرة العشوائية (Seed):' : 'RNG Seed (Determinism):'} {seed}
+              RNG Seed (Determinism): {seed}
             </label>
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <div className="flex items-center space-x-2">
               {[42, 101, 777].map(s => (
                 <button
                   key={s}
@@ -127,7 +125,7 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-            {locale === 'ar' ? 'منحنى الاستمرارية على مدى 6 أشهر (24 أسبوعاً)' : '24-Week Persistence Curves by Arm'}
+            24-Week Persistence Curves by Arm
           </h3>
           <span className="text-xs text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-semibold">
             B3 Rebound: 64% vs B0 Fixed: 8%
@@ -163,17 +161,17 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
       {/* 3. Ablation Analysis Breakdown */}
       <div className="bg-white rounded-2xl p-6 border border-sand-200 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-          {locale === 'ar' ? 'تحليل الإسهام المباشر لكل ركيزة (Ablation Study)' : 'Ablation Study (Contribution of Each Component)'}
+          Ablation Study (Contribution of Each Component)
         </h3>
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-start border-collapse">
             <thead>
               <tr className="bg-sand-50 border-b border-sand-200 text-slate-700 font-semibold">
-                <th className="p-2.5 text-start">{locale === 'ar' ? 'المكون المعزول' : 'Variant'}</th>
-                <th className="p-2.5 text-start">{locale === 'ar' ? 'الاستمرارية 6 أشهر' : '6M Persistence'}</th>
-                <th className="p-2.5 text-start">{locale === 'ar' ? 'سرعة التعافي (RHL)' : 'Recovery Half-Life'}</th>
-                <th className="p-2.5 text-start">{locale === 'ar' ? 'فارق التأثير' : 'Impact Delta'}</th>
+                <th className="p-2.5 text-start">Variant</th>
+                <th className="p-2.5 text-start">6M Persistence</th>
+                <th className="p-2.5 text-start">Recovery Half-Life</th>
+                <th className="p-2.5 text-start">Impact Delta</th>
               </tr>
             </thead>
             <tbody>
@@ -192,10 +190,8 @@ export const SimLabView: React.FC<SimLabViewProps> = ({ locale }) => {
         </div>
 
         <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 text-xs">
-          <strong>{locale === 'ar' ? 'إفصاح علمي نزيه للحكام:' : 'Scientific Caveat for Judges:'}</strong>{' '}
-          {locale === 'ar'
-            ? 'تُظهر هذه المحاكاة معقولية التصميم الهندسي وتفوقه النظري. الدليل السريري القاطع يتطلب تجربة المجموعات التدريجية (Stepped-wedge pilot) المخططة في خطة التقييم.'
-            : 'Simulation demonstrates design plausibility. It is not clinical evidence of efficacy. A stepped-wedge pilot is required before making health outcome claims.'}
+          <strong>Scientific Caveat for Judges:</strong>{' '}
+          Simulation demonstrates design plausibility. It is not clinical evidence of efficacy. A stepped-wedge pilot is required before making health outcome claims.
         </div>
       </div>
     </div>

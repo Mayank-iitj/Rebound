@@ -79,12 +79,12 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
           <div>
             <h2 className="text-lg font-bold text-slate-900">{t.today.capacityQuestion}</h2>
             <p className="text-xs text-slate-500">
-              {locale === 'ar' ? 'نقرة واحدة تكفي لتحديد طاقة اليوم وتعديل الخطة تلقائياً' : 'One tap sizes today\'s plan to real life. No pressure.'}
+              One tap sizes today's plan to real life. No pressure.
             </p>
           </div>
           <button
             onClick={() => setShowWhyModal(true)}
-            className="flex items-center space-x-1 rtl:space-x-reverse text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200/60 font-medium hover:bg-teal-100 transition"
+            className="flex items-center space-x-1 text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200/60 font-medium hover:bg-teal-100 transition"
           >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>{t.today.whyCapacity}</span>
@@ -94,11 +94,11 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
         {/* 5 Mood Faces */}
         <div className="flex items-center justify-between max-w-md mx-auto mb-5 bg-sand-50/70 p-2 rounded-xl border border-sand-200/60">
           {[
-            { val: 1, icon: "☹", label: locale === 'ar' ? "مرهق جداً" : "Drained" },
-            { val: 2, icon: "😕", label: locale === 'ar' ? "متعب" : "Heavy" },
-            { val: 3, icon: "😐", label: locale === 'ar' ? "عادي" : "Okay" },
-            { val: 4, icon: "🙂", label: locale === 'ar' ? "جيد" : "Good" },
-            { val: 5, icon: "😀", label: locale === 'ar' ? "ممتاز" : "High" }
+            { val: 1, icon: "☹", label: "Drained" },
+            { val: 2, icon: "😕", label: "Heavy" },
+            { val: 3, icon: "😐", label: "Okay" },
+            { val: 4, icon: "🙂", label: "Good" },
+            { val: 5, icon: "😀", label: "High" }
           ].map((item) => (
             <button
               key={item.val}
@@ -117,12 +117,12 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
 
         {/* Context Chips (Disruptor signals) */}
         <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-sand-100">
-          <span className="text-xs font-medium text-slate-500 me-1">{locale === 'ar' ? 'سياق اليوم:' : 'Today\'s context:'}</span>
+          <span className="text-xs font-medium text-slate-500 me-1">Today's context:</span>
           {[
-            { id: "tired", label: locale === 'ar' ? "قلة نوم" : "Short sleep (4.5h)" },
-            { id: "shift_swap", label: locale === 'ar' ? "مناوبة ليلية" : "Night shift" },
-            { id: "heat", label: locale === 'ar' ? "حرارة شديدة (42°C)" : "Summer heat (42°C)" },
-            { id: "travel", label: locale === 'ar' ? "سفر / تنقل" : "Travel" }
+            { id: "tired", label: "Short sleep (4.5h)" },
+            { id: "shift_swap", label: "Night shift" },
+            { id: "heat", label: "Summer heat (42°C)" },
+            { id: "travel", label: "Travel" }
           ].map(chip => (
             <button
               key={chip.id}
@@ -139,17 +139,17 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
         </div>
 
         {/* Capacity Output Banner */}
-        <div className="mt-4 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start space-x-3 rtl:space-x-reverse">
+        <div className="mt-4 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start space-x-3">
           <div className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
             <Flame className="w-4 h-4 text-amber-600" />
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                {t.today.capacityScore}: {Math.round(capacityVal * 100)}% ({todayData?.capacity?.value < 0.4 ? (locale === 'ar' ? 'يوم خفيف' : 'Light Capacity') : 'Optimal'})
+                {t.today.capacityScore}: {Math.round(capacityVal * 100)}% ({todayData?.capacity?.value < 0.4 ? 'Light Capacity' : 'Optimal'})
               </span>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                {locale === 'ar' ? 'نقترح الحد الأدنى (دقيقتان)' : 'Minimum Suggested (2 min)'}
+                Minimum Suggested (2 min)
               </span>
             </div>
             <p className="text-xs text-amber-900/90 leading-relaxed">
@@ -189,11 +189,11 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
             <div>
               <h3 className="font-bold text-sm text-teal-50">{t.today.restartTitle}</h3>
               <p className="text-xs text-teal-200 font-normal">
-                {locale === 'ar' ? 'لا خوف من فوات الأيام. ابدأ بـ دقيقتين فقط وسيحافظ على استمراريتك.' : 'No streak to lose. A 2-minute reset keeps your momentum fully alive.'}
+                No streak to lose. A 2-minute reset keeps your momentum fully alive.
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => handleLog(todayData?.actions?.[0]?.plan_action_id || 'act1', 'min')}
               className="px-3 py-1.5 rounded-xl bg-white text-teal-900 text-xs font-bold hover:bg-teal-50 transition shadow-xs"
@@ -214,10 +214,10 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
-            {locale === 'ar' ? 'مهام خطتك المرنة لليوم' : 'Today\'s Elastic Actions'}
+            Today's Elastic Actions
           </h3>
           <span className="text-xs text-slate-500">
-            {locale === 'ar' ? 'اختر المستوى المناسب لطاقتك' : 'Choose level matching your capacity'}
+            Choose level matching your capacity
           </span>
         </div>
 
@@ -291,10 +291,10 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
               <div className="pt-2 flex items-center justify-between border-t border-sand-100">
                 <span className="text-xs text-slate-500">
                   {currentLevel === 'min' 
-                    ? (locale === 'ar' ? 'النسخة البسيطة: دقيقتان كافية لبناء عادة صامدة' : 'Minimum level: 2 minutes protects your consistency')
+                    ? 'Minimum level: 2 minutes protects your consistency'
                     : currentLevel === 'std' 
-                    ? (locale === 'ar' ? 'المستوى المعتاد لليوم' : 'Standard daily target') 
-                    : (locale === 'ar' ? 'تحدي إضافي لطاقة عالية' : 'Stretch level for high-energy days')}
+                    ? 'Standard daily target' 
+                    : 'Stretch level for high-energy days'}
                 </span>
                 
                 <button
@@ -352,11 +352,9 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
 
         <div className="text-xs text-slate-600 bg-sand-50 p-2.5 rounded-xl border border-sand-200/80 max-w-xs">
           <span className="font-semibold text-teal-800 block mb-0.5">
-            {locale === 'ar' ? 'فلسفة ريبوند: لا عدادات شاقة' : 'Zero streak-shaming:'}
+            Zero streak-shaming:
           </span>
-          {locale === 'ar' 
-            ? 'الانقطاع يخدش المعدل قليلاً لكنه لا يعيدك للصفر أبداً. العودة السريعة هي الإنجاز الحقيقي.'
-            : 'Missed days slightly dip the 28-day score; they never reset it. We measure comebacks, not streaks.'}
+          Missed days slightly dip the 28-day score; they never reset it. We measure comebacks, not streaks.
         </div>
       </div>
 
@@ -365,9 +363,9 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-5 border border-sand-300 shadow-xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-sand-200">
-              <h3 className="font-bold text-base text-slate-900 flex items-center space-x-2 rtl:space-x-reverse">
+              <h3 className="font-bold text-base text-slate-900 flex items-center space-x-2">
                 <Info className="w-5 h-5 text-teal-700" />
-                <span>{locale === 'ar' ? 'كيف يحسب ريبوند طاقة اليوم؟' : 'How Rebound estimates Capacity'}</span>
+                <span>How Rebound estimates Capacity</span>
               </h3>
               <button onClick={() => setShowWhyModal(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold">
                 ✕
@@ -375,20 +373,16 @@ export const TodayView: React.FC<TodayViewProps> = ({ locale, todayData, onRefre
             </div>
             <div className="text-xs text-slate-600 space-y-2.5">
               <p>
-                {locale === 'ar'
-                  ? 'يقوم النموذج الرياضي (ml-spec §1) بدمج المدخلات المصرح بها وإعادة موازنة الأوزان فوراً دون الحاجة لأي جهاز قابل للارتداء:'
-                  : 'Our deterministic formula (ml-spec §1) combines consented signals with missing-weight renormalization:'}
+                Our deterministic formula (ml-spec §1) combines consented signals with missing-weight renormalization:
               </p>
               <ul className="space-y-1 list-disc list-inside text-slate-700">
-                <li><strong>{locale === 'ar' ? 'التقييم الذاتي (30%):' : 'Self-Report (30%):'}</strong> {selectedMood}/5 face.</li>
-                <li><strong>{locale === 'ar' ? 'ساعات النوم (25%):' : 'Sleep (25%):'}</strong> {sleepHours}h ({sleepHours < 5 ? 'Short rest deficit' : 'Adequate'}).</li>
-                <li><strong>{locale === 'ar' ? 'طبيعة العمل والمناوبة (20%):' : 'Workload (20%):'}</strong> {selectedChips.includes('shift_swap') ? 'Night shift rotation active' : 'Standard'}.</li>
-                <li><strong>{locale === 'ar' ? 'مؤشر الحرارة البيئية (10%):' : 'Heat Stress (10%):'}</strong> 42°C in Abu Dhabi (outdoor activities downshifted).</li>
+                <li><strong>Self-Report (30%):</strong> {selectedMood}/5 face.</li>
+                <li><strong>Sleep (25%):</strong> {sleepHours}h ({sleepHours < 5 ? 'Short rest deficit' : 'Adequate'}).</li>
+                <li><strong>Workload (20%):</strong> {selectedChips.includes('shift_swap') ? 'Night shift rotation active' : 'Standard'}.</li>
+                <li><strong>Heat Stress (10%):</strong> 42°C in Abu Dhabi (outdoor activities downshifted).</li>
               </ul>
               <div className="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 text-[11px]">
-                {locale === 'ar' 
-                  ? 'الشفافية الكاملة: لم يتم التنبؤ بأي تشخيص طبي أو سريري. التقدير هو مساعد تصميم فقط لمرونة خطتك.'
-                  : 'Design transparency: This is a behavioral heuristic, not a medical prediction.'}
+                Design transparency: This is a behavioral heuristic, not a medical prediction.
               </div>
             </div>
             <button
