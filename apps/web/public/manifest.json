@@ -1,0 +1,22 @@
+{
+  "name": "Rebound — Sustaining Healthy Behaviors",
+  "short_name": "Rebound",
+  "description": "Adaptive behavior-change platform engineered for the bad week.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0F766E",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230F766E'/><path d='M60 96 Q96 50 132 96 Q96 142 60 96' fill='none' stroke='white' stroke-width='16' stroke-linecap='round'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230F766E'/><path d='M160 256 Q256 130 352 256 Q256 382 160 256' fill='none' stroke='white' stroke-width='40' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+

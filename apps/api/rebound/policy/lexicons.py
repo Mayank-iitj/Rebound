@@ -33,3 +33,4 @@ MEDICATION_PATTERNS: List[Pattern] = [
     re.compile(r"\b(\d+\s*mg|\d+\s*ml|\d+\s*pills?|take\s+\d+\s+tablets?)\b", re.IGNORECASE),
     re.compile(r"\b(nicotine\s+patch\s+\d+|varenicline|bupropion|ozempic|metformin|aspirin|insulin)\b", re.IGNORECASE)
 ]
+

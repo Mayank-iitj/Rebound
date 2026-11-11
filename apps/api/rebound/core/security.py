@@ -89,3 +89,4 @@ def require_role(*allowed_roles: str):
             )
         return claims
     return role_checker
+

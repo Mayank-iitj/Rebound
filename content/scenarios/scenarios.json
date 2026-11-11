@@ -1,0 +1,61 @@
+{
+  "version": "1.0",
+  "scenarios": [
+    {
+      "id": "night_shift_week",
+      "title": { "en": "Night-shift week", "ar": "أسبوع المناوبات الليلية", "hi": "नाईट शिफ्ट का सप्ताह" },
+      "duration_days": 7,
+      "capacity_multiplier": 0.60,
+      "blocked_windows": ["20:00-06:00"],
+      "cue_unavailable": ["after_wake_morning"],
+      "dominant_blocker": "time_window_blocked",
+      "description": "7 consecutive hospital or industrial night shifts with severe daytime fatigue."
+    },
+    {
+      "id": "heatwave",
+      "title": { "en": "Summer heatwave (44°C)", "ar": "موجة حر صيفية (44 مئوية)", "hi": "भीषण गर्मी (44°C)" },
+      "duration_days": 7,
+      "capacity_multiplier": 0.85,
+      "blocked_windows": ["10:00-17:00"],
+      "outdoor_friction": 1.0,
+      "dominant_blocker": "extreme_outdoor_heat",
+      "description": "Dangerous outdoor heat index in Abu Dhabi summer; outdoor activity unsafe during midday."
+    },
+    {
+      "id": "ramadan",
+      "title": { "en": "Ramadan fasting & routine", "ar": "صيام رمضان وتغير الروتين", "hi": "रमजान का महीना" },
+      "duration_days": 14,
+      "capacity_multiplier": 0.80,
+      "preferred_window": "after_iftar",
+      "dominant_blocker": "fasting_daytime_energy",
+      "description": "Fasting hours shift all eating, hydration, and exercise windows to evening hours."
+    },
+    {
+      "id": "travel",
+      "title": { "en": "Unplanned travel", "ar": "سفر طارئ أو رحلة عمل", "hi": "अचानक यात्रा" },
+      "duration_days": 5,
+      "capacity_multiplier": 0.70,
+      "equipment_friction": 0.8,
+      "dominant_blocker": "unfamiliar_surroundings",
+      "description": "Disrupted cues, airport transit, hotel environment lacking familiar equipment."
+    },
+    {
+      "id": "sick_caregiver",
+      "title": { "en": "Illness or family caregiving", "ar": "مرض أو رعاية عائلية", "hi": "बीमारी या परिवार की देखभाल" },
+      "duration_days": 4,
+      "capacity_multiplier": 0.35,
+      "dominant_blocker": "family_care_priority",
+      "description": "Acute caregiving demands for family member or fever; personal energy at minimum."
+    },
+    {
+      "id": "work_crunch",
+      "title": { "en": "Urgent project crunch", "ar": "ضغط عمل استثنائي", "hi": "दफ्तर का भारी दबाव" },
+      "duration_days": 7,
+      "capacity_multiplier": 0.75,
+      "time_budget_mult": 0.4,
+      "dominant_blocker": "time_scarcity",
+      "description": "12+ hour urgent deadlines with mental exhaustion and back-to-back demands."
+    }
+  ]
+}
+

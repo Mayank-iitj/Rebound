@@ -408,3 +408,4 @@ def seed_database(db: Session):
         ))
 
     db.commit()
+

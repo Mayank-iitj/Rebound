@@ -40,3 +40,4 @@ def record_audit_entry(
     }
     # If db_session has audit log table insertion or memory store, store it
     return entry
+

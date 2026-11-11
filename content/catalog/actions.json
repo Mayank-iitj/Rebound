@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "actions": [
+    {
+      "id": "mv_walk",
+      "behavior": "movement",
+      "title": { "en": "Short walk", "ar": "مشي خفيف", "hi": "हल्की सैर" },
+      "instructions": {
+        "min": { "en": "2-minute walk indoors around the room", "ar": "امشِ لدقيقتين داخل الغرفة أو الممر" },
+        "std": { "en": "10-minute walk at comfortable pace", "ar": "امشِ لمدة 10 دقائق بالسرعة المريحة لك" },
+        "stretch": { "en": "20-minute brisk walk", "ar": "امشِ مشياً نشطاً لمدة 20 دقيقة" }
+      },
+      "indoor": false,
+      "equipment": [],
+      "accessibility_tags": ["outdoor", "indoor"],
+      "est_minutes": { "min": 2, "std": 10, "stretch": 20 },
+      "effort_cost": 1.0
+    },
+    {
+      "id": "mv_stretch_2",
+      "behavior": "movement",
+      "title": { "en": "Gentle stretch", "ar": "إطالة هادئة", "hi": "हल्का खिंचाव" },
+      "instructions": {
+        "min": { "en": "2 gentle full-body stretches and slow breaths", "ar": "حركتان هادئتان للإطالة مع التنفس العميق" },
+        "std": { "en": "5-minute gentle mobility routine", "ar": "روتين إطالة وحركة لمدة 5 دقائق" },
+        "stretch": { "en": "10-minute full mobility routine", "ar": "روتين مرونة كامل لمدة 10 دقائق" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor", "no_equipment", "seated_ok", "wheelchair_ok"],
+      "est_minutes": { "min": 2, "std": 5, "stretch": 10 },
+      "effort_cost": 0.4
+    },
+    {
+      "id": "mv_chair_moves",
+      "behavior": "movement",
+      "title": { "en": "Seated movement", "ar": "حركات الجلوس والكرسي", "hi": "कुर्सी पर बैठकर व्यायाम" },
+      "instructions": {
+        "min": { "en": "10 seated arm raises and wrist rolls", "ar": "10 تكرارات لرفع الذراعين ودوران المعصمين أثناء الجلوس" },
+        "std": { "en": "5-minute seated torso twists and arm reaches", "ar": "5 دقائق من دوران الجذع ومد الذراعين أثناء الجلوس" },
+        "stretch": { "en": "10-minute seated resistance routine", "ar": "10 دقائق من الحركات الدائرية مع شريط المقاومة الخفيف" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor", "seated_ok", "wheelchair_ok", "no_equipment"],
+      "est_minutes": { "min": 2, "std": 5, "stretch": 10 },
+      "effort_cost": 0.4
+    },
+    {
+      "id": "sl_wind_down",
+      "behavior": "sleep",
+      "title": { "en": "Wind-down routine", "ar": "روتين الاسترخاء قبل النوم", "hi": "सोने से पहले शांति" },
+      "instructions": {
+        "min": { "en": "3 slow, calming diaphragmatic breaths", "ar": "3 أنفاس بطيئة وعميقة من الحجاب الحاجز" },
+        "std": { "en": "10-minute dim light and breathing reset", "ar": "10 دقائق في إضاءة خافتة مع تصفية الذهن" },
+        "stretch": { "en": "20-minute audio guided relaxation", "ar": "20 دقيقة من الاسترخاء الصوتي الموجه وقراءة كتاب" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor", "seated_ok"],
+      "est_minutes": { "min": 2, "std": 10, "stretch": 20 },
+      "effort_cost": 0.5
+    },
+    {
+      "id": "sl_screen_down",
+      "behavior": "sleep",
+      "title": { "en": "Screens down", "ar": "إراحة العين من الشاشات", "hi": "स्क्रीन से दूरी" },
+      "instructions": {
+        "min": { "en": "Dim phone screen brightness 10 min before bed", "ar": "خفض سطوع الهاتف 10 دقائق قبل الاستلقاء" },
+        "std": { "en": "Put phone in another room 30 min before bed", "ar": "وضع الهاتف في غرفة أخرى 30 دقيقة قبل النوم" },
+        "stretch": { "en": "Screens off 60 min before sleep + book", "ar": "إيقاف جميع الشاشات قبل ساعة كاملة من النوم" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor"],
+      "est_minutes": { "min": 2, "std": 15, "stretch": 30 },
+      "effort_cost": 0.6
+    },
+    {
+      "id": "nu_water",
+      "behavior": "nutrition",
+      "title": { "en": "Hydration / Water", "ar": "شرب الماء والترطيب", "hi": "पानी पीना" },
+      "instructions": {
+        "min": { "en": "Drink 1 glass of fresh water", "ar": "اشرب كوباً واحداً من الماء النقي" },
+        "std": { "en": "Drink 4 glasses spaced across your day", "ar": "اشرب 4 أكواب موزعة بانتظام على مدار يومك" },
+        "stretch": { "en": "Drink 8 glasses of water throughout your waking hours", "ar": "اشرب 8 أكواب من الماء خلال ساعات يقظتك" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor", "outdoor"],
+      "est_minutes": { "min": 1, "std": 4, "stretch": 8 },
+      "effort_cost": 0.3
+    },
+    {
+      "id": "sm_delay",
+      "behavior": "smoking",
+      "title": { "en": "Delay a cigarette", "ar": "تأخير السيجارة", "hi": "सिगरेट में देरी" },
+      "instructions": {
+        "min": { "en": "When a craving hits, pause for 5 minutes first", "ar": "عندما تشعر بالرغبة، توقف لـ 5 دقائق وتنفس قبل أن تقرر" },
+        "std": { "en": "Delay the craving by 15 minutes with a water swap", "ar": "أخر تدخين السيجارة بـ 15 دقيقة مع شرب ماء بارد" },
+        "stretch": { "en": "Delay by 30 minutes + short walk", "ar": "أخر الرغبة بـ 30 دقيقة وامشِ مشياً خفيفاً" }
+      },
+      "indoor": true,
+      "equipment": [],
+      "accessibility_tags": ["indoor", "outdoor"],
+      "est_minutes": { "min": 5, "std": 15, "stretch": 30 },
+      "effort_cost": 0.7
+    }
+  ]
+}
+

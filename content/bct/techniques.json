@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "taxonomy": "Michie et al. (2013) BCT Taxonomy v1",
+  "techniques": [
+    {
+      "id": "bct_1_1",
+      "name": { "en": "Goal setting (behaviour)", "ar": "تحديد الأهداف السلوكية", "hi": "व्यवहार लक्ष्य निर्धारण" },
+      "plain_explanation": { "en": "Picking a specific, small goal gives you something clear to aim for.", "ar": "اختيار هدف محدد وبسيط يمنحك تركيزاً واضحاً.", "hi": "एक छोटा और स्पष्ट लक्ष्य तय करना काम आसान बनाता है।" },
+      "evidence_level": "strong",
+      "limits": { "en": "Goals that are too big can feel heavy; we keep them small.", "ar": "الأهداف الكبيرة قد تشكل عبئاً؛ نحرص على إبقائها صغيرة." }
+    },
+    {
+      "id": "bct_1_2",
+      "name": { "en": "Problem solving", "ar": "حل المشكلات والعوائق", "hi": "समस्या समाधान" },
+      "plain_explanation": { "en": "Thinking through what gets in the way helps you plan around it.", "ar": "التفكير في العقبات يساعدك على التخطيط لتجاوزها.", "hi": "रुकावटों को समझकर उनसे निपटने की योजना बनाएं।" },
+      "evidence_level": "strong",
+      "limits": { "en": "Works best when you can name the barrier.", "ar": "يعمل بشكل أفضل عندما تحدد العائق بدقة." }
+    },
+    {
+      "id": "bct_1_4",
+      "name": { "en": "Action planning", "ar": "تخطيط العمل وتحديد الموعد", "hi": "कार्य योजना" },
+      "plain_explanation": { "en": "Deciding when and where you'll act makes it easier to follow through.", "ar": "تحديد الوقت والمكان بدقة يجعل التنفيذ أسهل.", "hi": "समय और स्थान तय करने से पालन करना आसान होता है।" },
+      "evidence_level": "strong",
+      "limits": { "en": "Works best for simple actions; less help when days are unpredictable.", "ar": "أفضل للأفعال البسيطة؛ أقل فائدة في الأيام غير المتوقعة." }
+    },
+    {
+      "id": "bct_8_7",
+      "name": { "en": "Graded tasks", "ar": "المهام المتدرجة", "hi": "क्रमिक कार्य" },
+      "plain_explanation": { "en": "Starting small (2 minutes) and building up keeps habits doable.", "ar": "البدء بخطوات صغيرة (دقيقتان) ثم التدرج يبقي العادات ممكنة.", "hi": "छोटे कदमों (2 मिनट) से शुरुआत करना सबसे सुरक्षित रास्ता है।" },
+      "evidence_level": "strong",
+      "limits": { "en": "Progress may be uneven; show up even on tough days.", "ar": "التقدم قد يكون متذبذباً؛ الحضور في الأيام الصعبة هو الأهم." }
+    },
+    {
+      "id": "bct_13_5",
+      "name": { "en": "Identity associated with changed behaviour", "ar": "الهوية المرتبطة بالتعافي", "hi": "सकारात्मक पहचान" },
+      "plain_explanation": { "en": "Seeing yourself as someone who comes back builds long-term habits.", "ar": "رؤية نفسك كشخص يعود دائماً بعد الانقطاع يبني عادات تدوم.", "hi": "खुद को दोबारा लौटने वाले व्यक्ति के रूप में देखना मजबूती देता है।" },
+      "evidence_level": "emerging",
+      "limits": { "en": "Focuses on comebacks rather than unbroken streaks.", "ar": "يركز على قوة العودة بدلاً من سلاسل الأيام الخالية من الأخطاء." }
+    }
+  ]
+}
+
