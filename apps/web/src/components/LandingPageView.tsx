@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Locale } from '../i18n/translations';
 import { 
-  ArrowRight, ShieldCheck, Trophy, Presentation, CheckCircle2, 
+  ArrowRight, Trophy, Presentation, CheckCircle2, 
   Sparkles, Moon, Flame, Clock, AlertTriangle, Code2
 } from 'lucide-react';
 import { sound } from '../services/sound';
@@ -87,9 +87,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const processCanvasRef = useRef<HTMLCanvasElement>(null);
   const closingCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Horizontal rail track ref
-  const railTrackRef = useRef<HTMLDivElement>(null);
-  const railInnerWidth = useRef(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  // Process Stage active step state (0 to 3) - syncs with scroll or click
+  const [activeProcessStep, setActiveProcessStep] = useState(0);
+
+  // Active Catalogue Item selected in Stage 2
+  const [activePlateIndex, setActivePlateIndex] = useState(0);
 
   // Interactive Persona state
   const [activePersonaTab, setActivePersonaTab] = useState<'fatima' | 'rajesh' | 'omar' | 'mariam'>('fatima');
@@ -98,8 +100,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const [simActivePatch, setSimActivePatch] = useState(false);
   const [activeScenario, setActiveScenario] = useState<'night_shift' | 'heatwave' | 'ramadan' | 'work_crunch'>('night_shift');
 
-  // Current active step index in Stage 3 (0 to 3)
-  const activeProcessStep = Math.min(3, Math.floor(p3 * 4));
+  // Mermaid diagram code view toggle
+  const [showMermaidCode, setShowMermaidCode] = useState(false);
 
   // ---------------------------------------------------------------------------
   // 1. One Single rAF-Throttled Scroll Handler for All 4 Pinned Stages
@@ -130,11 +132,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           setP3(newP3);
           setP4(newP4);
 
-          // Write CSS custom properties on root
-          document.documentElement.style.setProperty('--hero-y', `${newP1 * -70}px`);
-          document.documentElement.style.setProperty('--hero-scale', `${1.0 - newP1 * 0.18}`);
-          document.documentElement.style.setProperty('--hero-alpha', `${Math.max(0, 1.0 - newP1 * 1.6)}`);
-          document.documentElement.style.setProperty('--hero-vignette', `${0.35 + newP1 * 0.6}`);
+          // Update process step based on scroll scrub
+          const derivedStep = Math.min(3, Math.floor(newP3 * 4));
+          setActiveProcessStep(derivedStep);
+
+          // Write CSS custom properties on root for GPU-composited styling
+          document.documentElement.style.setProperty('--hero-y', `${newP1 * -35}px`);
+          document.documentElement.style.setProperty('--hero-scale', `${1.0 - newP1 * 0.08}`);
+          document.documentElement.style.setProperty('--hero-vignette', `${0.3 + newP1 * 0.4}`);
 
           ticking = false;
         });
@@ -142,18 +147,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       }
     };
 
-    const handleResize = () => {
-      railInnerWidth.current = window.innerWidth;
-      handleScroll();
-    };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize, { passive: true });
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -190,6 +188,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
   // ---------------------------------------------------------------------------
   // 3. Stage 1: 46 Drifting Wood-Grain Contour Lines Canvas (Every 9th in Ice)
+  // High visibility & contrast — never blank!
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const canvas = heroCanvasRef.current;
@@ -200,9 +199,19 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     let animId: number;
     let startTime = performance.now();
 
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+
     const render = (now: number) => {
-      const w = (canvas.width = window.innerWidth);
-      const h = (canvas.height = window.innerHeight);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       const t = (now - startTime) / 1000;
 
       ctx.clearRect(0, 0, w, h);
@@ -212,36 +221,44 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
       for (let i = 0; i < totalLines; i++) {
         const isIce = i % 9 === 0;
-        const baseY = (i + 1.5) * spacing;
+        const baseY = (i + 1.2) * spacing;
 
         ctx.beginPath();
-        for (let x = 0; x <= w; x += 12) {
-          const s1 = Math.sin(x * 0.0035 + t * 0.4 + i * 0.28) * 14;
-          const s2 = Math.sin(x * 0.0012 + t * 0.18 + i * 0.15) * 8;
+        for (let x = 0; x <= w; x += 16) {
+          const s1 = Math.sin(x * 0.0035 + t * 0.45 + i * 0.3) * 16;
+          const s2 = Math.sin(x * 0.0015 + t * 0.2 + i * 0.15) * 8;
           const y = baseY + s1 + s2;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
 
         if (isIce) {
-          ctx.strokeStyle = 'rgba(185, 229, 243, 0.34)'; // Ice blue at 34%
-          ctx.lineWidth = 1.25;
+          ctx.strokeStyle = '#B9E5F3';
+          ctx.lineWidth = 1.75;
+          ctx.shadowColor = '#B9E5F3';
+          ctx.shadowBlur = 6;
         } else {
-          ctx.strokeStyle = 'rgba(245, 245, 242, 0.075)'; // Paper ground at 7.5%
-          ctx.lineWidth = 0.85;
+          ctx.strokeStyle = 'rgba(245, 245, 242, 0.22)'; // Crisp, visible hairlines
+          ctx.lineWidth = 1.0;
+          ctx.shadowBlur = 0;
         }
         ctx.stroke();
+        ctx.shadowBlur = 0;
       }
 
       animId = requestAnimationFrame(render);
     };
 
     animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animId);
+    };
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 4. Stage 3: Redrawn Canvas Diagram (Entirely Replaced Per Step)
+  // 4. Stage 3: Process Diagram Canvas (Entirely Redrawn Per Step)
+  // High contrast & vivid geometric animation
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const canvas = processCanvasRef.current;
@@ -251,7 +268,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
     let animId: number;
     let startTime = performance.now();
-    const size = 360;
+    const size = 320;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -266,25 +283,35 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       if (activeProcessStep === 0) {
         const numRings = 6;
         for (let r = 1; r <= numRings; r++) {
-          const pulse = Math.sin(elapsed * 2.2 + r * 0.6) * 6;
-          const radius = (r * 24) + pulse;
+          const pulse = Math.sin(elapsed * 2.5 + r * 0.7) * 8;
+          const radius = (r * 22) + pulse;
 
           ctx.beginPath();
-          ctx.arc(center, center, radius, 0, Math.PI * 2);
-          if (r === 3) {
+          ctx.arc(center, center, Math.max(4, radius), 0, Math.PI * 2);
+          if (r === 3 || r === 5) {
             ctx.strokeStyle = '#B9E5F3';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 2.0;
+            ctx.shadowColor = '#B9E5F3';
+            ctx.shadowBlur = 8;
           } else {
-            ctx.strokeStyle = 'rgba(245, 245, 242, 0.18)';
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = 'rgba(245, 245, 242, 0.35)';
+            ctx.lineWidth = 1.2;
+            ctx.shadowBlur = 0;
           }
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
+
+        // Center capacity core
+        ctx.beginPath();
+        ctx.arc(center, center, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#B9E5F3';
+        ctx.fill();
       }
       // MODE 1: 38-Point Phyllotaxis Spiral with 1 Lit Point Cycling (Searching)
       else if (activeProcessStep === 1) {
         const totalPoints = 38;
-        const litIndex = Math.floor(elapsed * 9) % totalPoints;
+        const litIndex = Math.floor(elapsed * 10) % totalPoints;
         const maxR = size * 0.42;
 
         for (let q = 0; q < totalPoints; q++) {
@@ -295,15 +322,15 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
           ctx.beginPath();
           if (q === litIndex) {
-            ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
             ctx.fillStyle = '#B9E5F3';
             ctx.shadowColor = '#B9E5F3';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 12;
             ctx.fill();
             ctx.shadowBlur = 0;
           } else {
-            ctx.arc(x, y, 1.8, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(245, 245, 242, 0.28)';
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(245, 245, 242, 0.45)';
             ctx.fill();
           }
         }
@@ -312,7 +339,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       else if (activeProcessStep === 2) {
         const cols = 5;
         const rows = 5;
-        const cellSize = 38;
+        const cellSize = 36;
         const startX = center - (cols * cellSize) / 2;
         const startY = center - (rows * cellSize) / 2;
         const activeCellX = 2;
@@ -328,22 +355,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             ctx.rect(x, y, cellSize, cellSize);
             if (isIceCell) {
               ctx.strokeStyle = '#B9E5F3';
-              ctx.lineWidth = 1.5;
+              ctx.lineWidth = 2.0;
               ctx.stroke();
-              // Inner filled dot
+              // Inner glowing target dot
               ctx.beginPath();
-              ctx.arc(x + cellSize / 2, y + cellSize / 2, 3, 0, Math.PI * 2);
+              ctx.arc(x + cellSize / 2, y + cellSize / 2, 4.5, 0, Math.PI * 2);
               ctx.fillStyle = '#B9E5F3';
+              ctx.shadowColor = '#B9E5F3';
+              ctx.shadowBlur = 10;
               ctx.fill();
+              ctx.shadowBlur = 0;
             } else {
-              ctx.strokeStyle = 'rgba(245, 245, 242, 0.12)';
-              ctx.lineWidth = 0.8;
+              ctx.strokeStyle = 'rgba(245, 245, 242, 0.25)';
+              ctx.lineWidth = 1.0;
               ctx.stroke();
               // Struck-through diagonal hairline
               ctx.beginPath();
-              ctx.moveTo(x + 6, y + 6);
-              ctx.lineTo(x + cellSize - 6, y + cellSize - 6);
-              ctx.strokeStyle = 'rgba(245, 245, 242, 0.2)';
+              ctx.moveTo(x + 5, y + 5);
+              ctx.lineTo(x + cellSize - 5, y + cellSize - 5);
+              ctx.strokeStyle = 'rgba(245, 245, 242, 0.35)';
               ctx.stroke();
             }
           }
@@ -354,17 +384,27 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         const boxSize = 130;
         ctx.beginPath();
         ctx.rect(center - boxSize / 2, center - boxSize / 2, boxSize, boxSize);
-        ctx.strokeStyle = 'rgba(245, 245, 242, 0.35)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#F5F5F2';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Crosshairs
+        ctx.beginPath();
+        ctx.moveTo(center - 15, center);
+        ctx.lineTo(center + 15, center);
+        ctx.moveTo(center, center - 15);
+        ctx.lineTo(center, center + 15);
+        ctx.strokeStyle = 'rgba(185, 229, 243, 0.6)';
+        ctx.lineWidth = 1.0;
         ctx.stroke();
 
         // Pulsing center dot in ice blue
-        const pulse = 4 + Math.sin(elapsed * 3) * 2;
+        const pulse = 5 + Math.sin(elapsed * 3.5) * 2.5;
         ctx.beginPath();
         ctx.arc(center, center, pulse, 0, Math.PI * 2);
         ctx.fillStyle = '#B9E5F3';
         ctx.shadowColor = '#B9E5F3';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -388,34 +428,44 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     let animId: number;
     let startTime = performance.now();
 
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = (window.innerHeight * 0.7) * dpr;
+      ctx.scale(dpr, dpr);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+
     const render = (now: number) => {
-      const w = (canvas.width = window.innerWidth);
-      const h = (canvas.height = window.innerHeight);
+      const w = window.innerWidth;
+      const h = window.innerHeight * 0.7;
       const t = (now - startTime) / 1000;
 
       ctx.clearRect(0, 0, w, h);
 
       const totalLines = 26;
-      const spacing = h / (totalLines + 2);
+      const spacing = h / (totalLines + 1);
 
       for (let i = 0; i < totalLines; i++) {
         const isSage = i % 6 === 0;
-        const baseY = (i + 1) * spacing;
+        const baseY = (i + 0.8) * spacing;
 
         ctx.beginPath();
-        for (let x = 0; x <= w; x += 14) {
-          const s1 = Math.sin(x * 0.0028 + t * 0.25 + i * 0.3) * 12;
+        for (let x = 0; x <= w; x += 18) {
+          const s1 = Math.sin(x * 0.003 + t * 0.28 + i * 0.35) * 14;
           const y = baseY + s1;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
 
         if (isSage) {
-          ctx.strokeStyle = 'rgba(184, 192, 188, 0.45)'; // Sage
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = '#B8C0BC'; // Sage
+          ctx.lineWidth = 1.75;
         } else {
-          ctx.strokeStyle = 'rgba(9, 11, 12, 0.06)'; // Subtle dark hairline on paper
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = 'rgba(9, 11, 12, 0.16)'; // Clear visible ink on paper
+          ctx.lineWidth = 1.0;
         }
         ctx.stroke();
       }
@@ -424,7 +474,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     };
 
     animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animId);
+    };
   }, []);
 
   // Character count calculation for wordmark auto-scaling
@@ -433,373 +486,383 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   return (
     <div className="relative bg-[#F5F5F2] text-[#090B0C] selection:bg-[#B9E5F3] selection:text-[#090B0C] font-body-sans overflow-x-hidden no-radius">
       {/* =====================================================================
-          STAGE 1: SERIF HERO ON FOUR VARIABLES (280svh on near-black #090B0C)
+          STAGE 1: SERIF HERO ON FOUR VARIABLES (Tightly choreographed on #090B0C)
+          No empty blank void!
           ===================================================================== */}
-      <section ref={stage1Ref} className="relative h-[280svh]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#090B0C] text-[#F5F5F2] flex flex-col justify-between">
-          {/* Canvas: 46 drifting contour lines (every 9th line in ice blue) */}
-          <canvas
-            ref={heroCanvasRef}
-            className="absolute inset-0 pointer-events-none w-full h-full"
-            aria-hidden="true"
-          />
+      <section ref={stage1Ref} className="relative min-h-[100svh] bg-[#090B0C] text-[#F5F5F2] flex flex-col justify-between py-8 sm:py-12">
+        {/* Canvas: 46 drifting contour lines (every 9th line in ice blue) */}
+        <canvas
+          ref={heroCanvasRef}
+          className="absolute inset-0 pointer-events-none w-full h-full"
+          aria-hidden="true"
+        />
 
-          {/* Radial Vignette driven by fourth variable (--hero-vignette) */}
-          <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-150"
-            style={{
-              opacity: 0.35 + p1 * 0.6,
-              background:
-                'radial-gradient(circle at 50% 50%, rgba(9,11,12,0.1) 0%, rgba(9,11,12,0.92) 85%)'
-            }}
-          />
+        {/* Subtle radial vignette that deepens on scroll */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            opacity: 0.3 + p1 * 0.35,
+            background: 'radial-gradient(circle at 50% 50%, rgba(9,11,12,0.15) 0%, rgba(9,11,12,0.85) 90%)'
+          }}
+        />
 
-          {/* Top Furniture Strap */}
-          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto pt-8 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#F5F5F2]/60 border-b border-[#F5F5F2]/10 pb-4">
-            <span className="flex items-center space-x-2">
-              <span className="w-1.5 h-1.5 bg-[#B9E5F3] inline-block" />
-              <span>REBOUND // DOH ABU DHABI HEALTHCARE RESILIENCE SPECIFICATION</span>
-            </span>
-            <span className="hidden md:inline-block text-[#B9E5F3]">
-              BCT 8.7 GRADED ELASTICITY · ZERO STREAK SHAME
-            </span>
+        {/* Top Furniture Strap */}
+        <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto flex items-center justify-between font-furniture-mono text-[10.5px] text-[#F5F5F2]/70 border-b border-[#F5F5F2]/15 pb-4">
+          <span className="flex items-center space-x-2">
+            <span className="w-1.5 h-1.5 bg-[#B9E5F3] inline-block animate-pulse" />
+            <span>REBOUND // DOH ABU DHABI HEALTHCARE RESILIENCE SPECIFICATION</span>
+          </span>
+          <span className="hidden md:inline-block text-[#B9E5F3]">
+            BCT 8.7 GRADED ELASTICITY · ZERO STREAK SHAME
+          </span>
+        </div>
+
+        {/* Main Wordmark Block (Grounded & Always Readable) */}
+        <div
+          className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto my-auto space-y-6 pt-10 pb-8"
+          style={{
+            transform: `translate3d(0, ${p1 * -35}px, 0) scale(${1.0 - p1 * 0.08})`,
+            transition: 'transform 0.1s ease-out'
+          }}
+        >
+          <div className="font-furniture-mono text-[#B9E5F3] tracking-[0.2em]">
+            THE ARCHITECTURE OF COMEBACKS
           </div>
 
-          {/* Wordmark Type Block (Lifted by --hero-y, scaled by --hero-scale, faded by --hero-alpha) */}
-          <div
-            className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto my-auto space-y-8 will-change-transform"
+          {/* Wordmark in Instrument Serif with part italic & ice-coloured */}
+          <h1
+            className="font-serif-display font-normal text-white tracking-tight leading-[0.92]"
             style={{
-              transform: `translate3d(0, ${p1 * -70}px, 0) scale(${1.0 - p1 * 0.18})`,
-              opacity: Math.max(0, 1.0 - p1 * 1.6)
+              fontSize: `min(clamp(3.4rem, 20vw, 14rem), calc(92vw / (${wordmarkChars} * 0.46)))`,
+              whiteSpace: 'nowrap'
             }}
           >
-            <div className="font-furniture-mono text-[#B9E5F3] tracking-[0.2em]">
-              THE ARCHITECTURE OF COMEBACKS
-            </div>
+            REBOUND <span className="font-serif italic text-[#B9E5F3]">survives</span>
+          </h1>
 
-            {/* Wordmark in Instrument Serif with part italic & ice-coloured */}
-            <h1
-              className="font-serif-display font-normal text-white tracking-tight leading-[0.92]"
-              style={{
-                fontSize: `min(clamp(3.4rem, 20vw, 14rem), calc(92vw / (${wordmarkChars} * 0.46)))`,
-                whiteSpace: 'nowrap'
+          {/* Lede: Split into per-word inline spans rising 0.38em on 38ms stagger */}
+          <p className="max-w-2xl text-sm sm:text-base text-[#F5F5F2]/85 leading-relaxed font-body-sans font-light">
+            <WordSplit
+              text="Every health system is built for the ideal week. Patients drop out in the bad one. Rebound models real-world chaos pre-emptively—adapting to 12-hour night shifts, 44°C summer heatwaves, and acute exhaustion with elastic graded tiers, zero streak guilt, and verifiable 28-day persistence."
+              italicPhrase="ideal week"
+              baseDelay={80}
+            />
+          </p>
+
+          {/* Action Buttons: Exactly ONE button in Ice Blue */}
+          <div className="flex flex-wrap items-center gap-4 pt-4 font-furniture-mono text-[10.5px]">
+            <button
+              onClick={() => {
+                sound.playTap();
+                onLaunchApp();
               }}
+              className="px-6 py-3.5 bg-[#B9E5F3] hover:bg-white text-[#090B0C] font-semibold transition tracking-wider border border-[#B9E5F3]"
             >
-              REBOUND <span className="font-serif italic text-[#B9E5F3]">survives</span>
-            </h1>
+              ENTER PLATFORM →
+            </button>
 
-            {/* Lede: Split into per-word inline spans rising 0.38em on 38ms stagger */}
-            <p className="max-w-xl text-sm sm:text-base text-[#F5F5F2]/80 leading-relaxed font-body-sans font-light">
-              <WordSplit
-                text="Every health system is built for the ideal week. Patients drop out in the bad one. Rebound models real-world chaos pre-emptively—adapting to 12-hour night shifts, 44°C summer heatwaves, and acute exhaustion with elastic graded tiers, zero streak guilt, and verifiable 28-day persistence."
-                italicPhrase="ideal week"
-                baseDelay={100}
-              />
-            </p>
-
-            {/* Action Buttons: Exactly ONE button in Ice Blue */}
-            <div className="flex flex-wrap items-center gap-4 pt-4 font-furniture-mono text-[10.5px]">
+            {onOpenJudgeTour && (
               <button
                 onClick={() => {
                   sound.playTap();
-                  onLaunchApp();
+                  onOpenJudgeTour();
                 }}
-                className="px-6 py-3.5 bg-[#B9E5F3] hover:bg-white text-[#090B0C] font-semibold transition tracking-wider border border-[#B9E5F3]"
+                className="px-6 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2] border border-[#F5F5F2]/30 transition tracking-wider flex items-center space-x-2"
               >
-                ENTER PLATFORM →
+                <Trophy className="w-3.5 h-3.5 text-[#B9E5F3]" />
+                <span>3-MIN EVALUATION TOUR</span>
               </button>
+            )}
 
-              {onOpenJudgeTour && (
-                <button
-                  onClick={() => {
-                    sound.playTap();
-                    onOpenJudgeTour();
-                  }}
-                  className="px-6 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2] border border-[#F5F5F2]/30 transition tracking-wider flex items-center space-x-2"
-                >
-                  <Trophy className="w-3.5 h-3.5 text-[#B9E5F3]" />
-                  <span>3-MIN EVALUATION TOUR</span>
-                </button>
-              )}
-
-              {onOpenPitchDeck && (
-                <button
-                  onClick={() => {
-                    sound.playTap();
-                    onOpenPitchDeck();
-                  }}
-                  className="px-5 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2]/80 border border-[#F5F5F2]/20 transition tracking-wider"
-                >
-                  PITCH DECK (12 SLIDES)
-                </button>
-              )}
-            </div>
+            {onOpenPitchDeck && (
+              <button
+                onClick={() => {
+                  sound.playTap();
+                  onOpenPitchDeck();
+                }}
+                className="px-5 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2]/80 border border-[#F5F5F2]/20 transition tracking-wider"
+              >
+                PITCH DECK (12 SLIDES)
+              </button>
+            )}
           </div>
+        </div>
 
-          {/* Bottom Mono Furniture Bar */}
-          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto pb-8 border-t border-[#F5F5F2]/10 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
-            <div>
-              <span className="block text-[#B9E5F3]">RECOVERY HALF-LIFE</span>
-              <span className="text-sm text-white font-serif">2.1 Days</span>
-            </div>
-            <div>
-              <span className="block text-[#B9E5F3]">24-WEEK RETENTION</span>
-              <span className="text-sm text-white font-serif">64% vs 8%</span>
-            </div>
-            <div>
-              <span className="block text-[#B9E5F3]">STREAK POLICY</span>
-              <span className="text-sm text-white font-serif">Zero Reset</span>
-            </div>
-            <div>
-              <span className="block text-[#B9E5F3]">MATHEMATICAL PRIVACY</span>
-              <span className="text-sm text-white font-serif">k≥20 · ε=1.0</span>
-            </div>
+        {/* Bottom Mono Furniture Bar with Live Telemetry */}
+        <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto pt-6 border-t border-[#F5F5F2]/15 grid grid-cols-2 sm:grid-cols-4 gap-4 font-furniture-mono text-[10.5px] text-[#F5F5F2]/75">
+          <div>
+            <span className="block text-[#B9E5F3]">RECOVERY HALF-LIFE</span>
+            <span className="text-sm sm:text-base text-white font-serif">2.1 Days (vs 16.5d)</span>
+          </div>
+          <div>
+            <span className="block text-[#B9E5F3]">24-WEEK RETENTION</span>
+            <span className="text-sm sm:text-base text-white font-serif">64% (vs 8% Baseline)</span>
+          </div>
+          <div>
+            <span className="block text-[#B9E5F3]">STREAK POLICY</span>
+            <span className="text-sm sm:text-base text-white font-serif">Denominator Protected</span>
+          </div>
+          <div>
+            <span className="block text-[#B9E5F3]">MATHEMATICAL PRIVACY</span>
+            <span className="text-sm sm:text-base text-white font-serif">k≥20 · Laplace ε=1.0</span>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          STAGE 2: HORIZONTAL CATALOGUE RAIL (340svh on tinted paper #E9E8E4)
-          Translates horizontally by exactly its own overflow width
-          5 plates: drawn lobed body outlines with drifting f-holes & ice neck
+          STAGE 2: HORIZONTAL CATALOGUE RAIL (Interactive on tinted paper #E9E8E4)
+          5 drawn instrument-body plates with drifting f-holes & ice neck
+          No blank voids!
           ===================================================================== */}
-      <section ref={stage2Ref} className="relative h-[340svh] bg-[#E9E8E4]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-between py-10">
+      <section ref={stage2Ref} className="relative bg-[#E9E8E4] py-16 sm:py-20 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-8">
           {/* Header & Mono Count at Top */}
-          <div className="w-[91.5vw] max-w-[1360px] mx-auto flex items-end justify-between border-b border-[#090B0C]/15 pb-4">
+          <div className="flex flex-wrap items-end justify-between border-b border-[#090B0C]/15 pb-4 gap-4">
             <div>
               <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block mb-1">
-                STAGE 02 // GENERATED CATALOGUE
+                STAGE 02 // GENERATED RESILIENCE CATALOGUE
               </span>
-              <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
-                Five Core <span className="font-serif italic text-[#090B0C]/70">resilience</span> Plates
+              <h2 className="font-serif-display text-3xl sm:text-5xl text-[#090B0C]">
+                Five Core <span className="font-serif italic text-[#090B0C]/75">resilience</span> Plates
               </h2>
             </div>
-            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">
-              05 PLATES // HARMONIC POLAR LOOPS
-            </span>
+            <div className="font-furniture-mono text-[10.5px] text-[#090B0C]/70 flex items-center space-x-3">
+              <span>05 PROCEDURAL POLAR PLATES</span>
+              <span className="w-1.5 h-1.5 bg-[#090B0C] inline-block" />
+              <span>ACTIVE: 0{activePlateIndex + 1}</span>
+            </div>
           </div>
 
-          {/* Horizontal Track Translating by its Overflow Width */}
-          <div className="relative my-auto overflow-visible">
-            <div
-              ref={railTrackRef}
-              className="flex items-center space-x-6 px-[4.25vw] will-change-transform transition-transform duration-75 ease-out"
-              style={{
-                transform: `translate3d(calc(-1 * ${p2} * 1050px), 0, 0)`
-              }}
-            >
+          {/* Interactive Horizontal Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              {
+                id: '01',
+                name: 'The Shift-Work Chamber',
+                year: 'OPUS 2026.01',
+                note: 'Recalibrates daytime sleep clashing with standard walk windows; activates 2-minute seated micro-action.',
+                spec: 'ADAPTIVE SLEEP WINDOW // 17:00 POST-WAKE'
+              },
+              {
+                id: '02',
+                name: 'The 44°C Climate Inversion',
+                year: 'OPUS 2026.02',
+                note: 'Sensor-triggered indoor hydration and somatic breathwork when outdoor thermal index exceeds 40°C.',
+                spec: 'ABU DHABI WEATHER API // THERMAL ESCAPE'
+              },
+              {
+                id: '03',
+                name: 'The Seated Adaptive Core',
+                year: 'OPUS 2026.03',
+                note: 'Dedicated upper-body wheelchair mobility library eliminating step-count bias entirely.',
+                spec: 'ACCESSIBLE ZERO-STEP GAUGING // BCT 8.7'
+              },
+              {
+                id: '04',
+                name: 'The Blameless Flight Recorder',
+                year: 'OPUS 2026.04',
+                note: '20-second barrier attribution diagnosing fatigue or illness and generating verified If-Then rules.',
+                spec: 'LAPSE DIAGNOSIS // 1-TAP IF-THEN RULE'
+              },
+              {
+                id: '05',
+                name: 'The 28-Day Consistency Ring',
+                year: 'OPUS 2026.05',
+                note: 'Rolling persistence ledger with automatic grace exclusions protecting denominator from shame.',
+                spec: 'ROLLING 28D // ZERO STREAK CLIFF'
+              }
+            ].map((item, idx) => {
+              // Polar body math: r(a) = R0 * (1 + c1*cos(2a) + c2*cos(4a))
+              const seed = idx + 1;
+              const c1 = 0.22 + seed * 0.03;
+              const c2 = 0.12 - seed * 0.015;
+              const isSelected = activePlateIndex === idx;
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    sound.playTap();
+                    setActivePlateIndex(idx);
+                  }}
+                  className={`cursor-pointer transition-all duration-300 p-5 bg-[#F5F5F2] border flex flex-col justify-between space-y-4 ${
+                    isSelected
+                      ? 'border-[#090B0C] ring-1 ring-[#090B0C] shadow-sm'
+                      : 'border-[#090B0C]/15 hover:border-[#090B0C]/40'
+                  }`}
+                >
+                  {/* Top Plate Info */}
+                  <div className="flex items-center justify-between font-furniture-mono text-[10.5px] text-[#090B0C]/60 border-b border-[#090B0C]/10 pb-2">
+                    <span className={isSelected ? 'text-[#090B0C] font-bold' : ''}>PLATE {item.id}</span>
+                    <span>{item.year}</span>
+                  </div>
+
+                  {/* SVG Drawn Plate */}
+                  <div className="aspect-[4/5] w-full bg-[#E9E8E4]/80 border border-[#090B0C]/10 flex items-center justify-center p-3 relative overflow-hidden">
+                    <svg
+                      viewBox="0 0 200 250"
+                      className="w-full h-full"
+                      aria-hidden="true"
+                    >
+                      {/* Lobed Body Outline in clay #C9C3B9 */}
+                      <path
+                        d={`M ${Array.from({ length: 64 })
+                          .map((_, step) => {
+                            const a = (step / 64) * Math.PI * 2;
+                            const r = 68 * (1 + c1 * Math.cos(2 * a) + c2 * Math.cos(4 * a));
+                            const x = 100 + r * Math.sin(a);
+                            const y = 135 + r * Math.cos(a) * 1.35;
+                            return `${step === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+                          })
+                          .join(' ')} Z`}
+                        fill={isSelected ? '#C9C3B9' : '#DEDFDB'}
+                        stroke="#090B0C"
+                        strokeWidth="1.5"
+                      />
+
+                      {/* Ice Blue Neck Line */}
+                      <line
+                        x1="100"
+                        y1="25"
+                        x2="100"
+                        y2="175"
+                        stroke="#B9E5F3"
+                        strokeWidth="2.0"
+                      />
+
+                      {/* Two Mirrored F-Holes */}
+                      <path
+                        d="M 72 105 Q 68 120 74 135 Q 80 148 76 160"
+                        fill="none"
+                        stroke="#090B0C"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M 128 105 Q 132 120 126 135 Q 120 148 124 160"
+                        fill="none"
+                        stroke="#090B0C"
+                        strokeWidth="1.5"
+                      />
+                    </svg>
+
+                    {isSelected && (
+                      <span className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-[#090B0C] text-white font-furniture-mono text-[9px]">
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Name & Note */}
+                  <div className="space-y-1.5">
+                    <h3 className="font-serif text-base sm:text-lg text-[#090B0C] leading-snug">
+                      {item.name}
+                    </h3>
+                    <p className="font-body-sans text-xs text-[#090B0C]/75 leading-relaxed font-light">
+                      {item.note}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#090B0C]/10 font-furniture-mono text-[9.5px] text-[#090B0C]/60 truncate">
+                    {item.spec}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================================
+          STAGE 3: PROCESS STAGE WITH REDRAWN DIAGRAM (Interactive on #090B0C)
+          4 modes with live interactive click/scroll triggers
+          No blank voids!
+          ===================================================================== */}
+      <section ref={stage3Ref} className="relative bg-[#090B0C] text-[#F5F5F2] py-20 border-t border-[#F5F5F2]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-10">
+          {/* Header Bar */}
+          <div className="flex flex-wrap items-center justify-between border-b border-[#F5F5F2]/15 pb-4 gap-4">
+            <div>
+              <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3] block mb-1">
+                STAGE 03 // THE FOUR-STEP RESILIENCE CYCLE
+              </span>
+              <h2 className="font-serif-display text-3xl sm:text-5xl text-white">
+                The process of <span className="font-serif italic text-[#B9E5F3]">recovery</span>
+              </h2>
+            </div>
+            <div className="font-furniture-mono text-[10.5px] text-[#F5F5F2]/70 flex items-center space-x-3">
+              <span>STEP 0{activeProcessStep + 1} OF 04</span>
+              <span className="w-1.5 h-1.5 bg-[#B9E5F3] inline-block" />
+              <span className="text-[#B9E5F3]">INTERACTIVE TELEMETRY ACTIVE</span>
+            </div>
+          </div>
+
+          {/* Two-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            {/* Left Column: 4 Clickable / Scrollable Step Cards */}
+            <div className="space-y-3">
               {[
                 {
-                  id: '01',
-                  name: 'The Shift-Work Chamber',
-                  year: 'OPUS 2026.01',
-                  note: 'Recalibrates daytime sleep clashing with standard walk windows; activates 2-minute seated micro-action.'
+                  step: '01',
+                  modeName: 'MODE 01 // CONCENTRIC PULSING RINGS (LISTENING)',
+                  title: 'Capacity Sensing & Renormalization',
+                  desc: 'Sensors detect 4.5h sleep or 42°C climate friction. Formula Ct dynamically rescales daily actions without moral penalty.',
+                  metric: 'Ct = 0.38 · MINIMUM TIER (2 MIN)'
                 },
                 {
-                  id: '02',
-                  name: 'The 44°C Climate Inversion',
-                  year: 'OPUS 2026.02',
-                  note: 'Sensor-triggered indoor hydration and somatic breathwork when outdoor thermal index exceeds 40°C.'
+                  step: '02',
+                  modeName: 'MODE 02 // 38-POINT PHYLLOTAXIS WITH 1 LIT NODE (SEARCHING)',
+                  title: 'Habit Twin Friction Search',
+                  desc: 'Monte Carlo synthetic agent runner tests 6 disruption scenarios, identifying catastrophic failure points pre-commitment.',
+                  metric: 'SURVIVABILITY: 2/6 -> 5/6 (+38% LIFT)'
                 },
                 {
-                  id: '03',
-                  name: 'The Seated Adaptive Core',
-                  year: 'OPUS 2026.03',
-                  note: 'Dedicated upper-body wheelchair mobility library eliminating step-count bias entirely.'
+                  step: '03',
+                  modeName: 'MODE 03 // 5X5 STRUCK GRID WITH 1 ICE ACCENT (EDITING)',
+                  title: 'Ethics Governor Filtering',
+                  desc: 'Deterministic policy hash intercepts dark patterns, shaming notifications, and caps daily nudges to 3 strictly.',
+                  metric: 'POLICY HASH: 368b1932f91a56bc'
                 },
                 {
-                  id: '04',
-                  name: 'The Blameless Flight Recorder',
-                  year: 'OPUS 2026.04',
-                  note: '20-second barrier attribution diagnosing fatigue or illness and generating verified If-Then rules.'
-                },
-                {
-                  id: '05',
-                  name: 'The 28-Day Consistency Ring',
-                  year: 'OPUS 2026.05',
-                  note: 'Rolling persistence ledger with automatic grace exclusions protecting denominator from shame.'
+                  step: '04',
+                  modeName: 'MODE 04 // SETTLED GEOMETRIC SQUARE (ARRIVAL)',
+                  title: 'Blameless Flight Recorder & Arrival',
+                  desc: 'One-tap barrier attribution synthesizes personal If-Then recovery rules, reducing Recovery Half-Life to 2.1 days.',
+                  metric: 'RHL REDUCED FROM 16.5D TO 2.1 DAYS'
                 }
               ].map((item, idx) => {
-                // Generated Instrument-Body Plate (Polar loop with cos(2a) and cos(4a) terms)
-                // Seeded off item index idx
-                const seed = idx + 1;
-                const c1 = 0.22 + seed * 0.03;
-                const c2 = 0.12 - seed * 0.015;
+                const isSelected = activeProcessStep === idx;
 
                 return (
                   <div
-                    key={item.id}
-                    className="flex-none w-[clamp(250px,26vw,330px)] bg-[#F5F5F2] border border-[#090B0C]/15 p-6 flex flex-col justify-between space-y-4"
+                    key={item.step}
+                    onClick={() => {
+                      sound.playTap();
+                      setActiveProcessStep(idx);
+                    }}
+                    className={`p-4 border transition-all duration-300 cursor-pointer ${
+                      isSelected
+                        ? 'border-l-2 border-l-[#B9E5F3] border-t-[#F5F5F2]/25 border-r-[#F5F5F2]/25 border-b-[#F5F5F2]/25 bg-[#F5F5F2]/10 shadow-sm'
+                        : 'border-[#F5F5F2]/10 bg-[#F5F5F2]/[0.02] hover:border-[#F5F5F2]/30 opacity-70'
+                    }`}
                   >
-                    {/* Top Plate Info */}
-                    <div className="flex items-center justify-between font-furniture-mono text-[10.5px] text-[#090B0C]/60 border-b border-[#090B0C]/10 pb-2">
-                      <span>PLATE {item.id}</span>
-                      <span>{item.year}</span>
+                    <div className="flex items-center justify-between mb-1 font-furniture-mono text-[10.5px]">
+                      <span className={isSelected ? 'text-[#B9E5F3] font-bold' : 'text-[#F5F5F2]/60'}>
+                        STEP {item.step} // {isSelected ? 'ACTIVE VIEW' : 'CLICK TO INSPECT'}
+                      </span>
+                      <span className="font-mono text-[10px] text-[#B9E5F3]/80">{item.metric}</span>
                     </div>
-
-                    {/* SVG Generated Instrument-Body Plate (4/5 Aspect Ratio, Drawn, No Photography) */}
-                    <div className="aspect-[4/5] w-full bg-[#E9E8E4]/60 border border-[#090B0C]/10 flex items-center justify-center p-4 relative overflow-hidden">
-                      <svg
-                        viewBox="0 0 200 250"
-                        className="w-full h-full"
-                        aria-hidden="true"
-                      >
-                        {/* Lobed Body Outline filled in clay #C9C3B9, stroked in ink #090B0C */}
-                        <path
-                          d={`M ${Array.from({ length: 64 })
-                            .map((_, step) => {
-                              const a = (step / 64) * Math.PI * 2;
-                              const r = 68 * (1 + c1 * Math.cos(2 * a) + c2 * Math.cos(4 * a));
-                              const x = 100 + r * Math.sin(a);
-                              const y = 135 + r * Math.cos(a) * 1.35;
-                              return `${step === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-                            })
-                            .join(' ')} Z`}
-                          fill="#C9C3B9"
-                          stroke="#090B0C"
-                          strokeWidth="1.25"
-                        />
-
-                        {/* Ice Blue Neck Line */}
-                        <line
-                          x1="100"
-                          y1="30"
-                          x2="100"
-                          y2="170"
-                          stroke="#B9E5F3"
-                          strokeWidth="1.5"
-                        />
-
-                        {/* Two Mirrored F-Holes drifting on sine wave */}
-                        <path
-                          d="M 72 105 Q 68 120 74 135 Q 80 148 76 160"
-                          fill="none"
-                          stroke="#090B0C"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M 128 105 Q 132 120 126 135 Q 120 148 124 160"
-                          fill="none"
-                          stroke="#090B0C"
-                          strokeWidth="1.5"
-                        />
-                      </svg>
-                    </div>
-
-                    {/* Item Name & Note */}
-                    <div className="space-y-1">
-                      <h3 className="font-serif text-lg text-[#090B0C] leading-snug">
-                        {item.name}
-                      </h3>
-                      <p className="font-body-sans text-xs text-[#090B0C]/70 leading-relaxed font-light">
-                        {item.note}
-                      </p>
-                    </div>
+                    <h3 className="font-serif text-lg text-white">{item.title}</h3>
+                    <p className="text-xs text-[#F5F5F2]/80 font-light mt-1 leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          {/* Bottom Rail Navigation Strap */}
-          <div className="w-[91.5vw] max-w-[1360px] mx-auto border-t border-[#090B0C]/15 pt-3 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#090B0C]/60">
-            <span>SCROLL PROGRESSION: {Math.round(p2 * 100)}%</span>
-            <span>POLAR POLYNOMIAL SYNTHESIS</span>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          STAGE 3: PROCESS STAGE WITH A REDRAWN DIAGRAM (380svh on near-black #090B0C)
-          Left: 4 bordered steps lighting cumulatively with ice-blue left border
-          Right: Square canvas REDRAWN ENTIRELY per step + Serif index 01-04
-          ===================================================================== */}
-      <section ref={stage3Ref} className="relative h-[380svh] bg-[#090B0C] text-[#F5F5F2]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-between py-10">
-          {/* Header Bar */}
-          <div className="w-[91.5vw] max-w-[1360px] mx-auto flex items-center justify-between border-b border-[#F5F5F2]/10 pb-4">
-            <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3]">
-              STAGE 03 // THE FOUR-STEP RESILIENCE CYCLE
-            </span>
-            <span className="font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
-              DIAGRAM STATE: 0{activeProcessStep + 1} OF 04
-            </span>
-          </div>
-
-          {/* Two-Column Process Stage */}
-          <div className="w-[91.5vw] max-w-[1360px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center my-auto">
-            {/* Left Column: Headline with Italic Ice Clause + 4 Bordered Steps */}
-            <div className="space-y-6 max-w-lg">
-              <div>
-                <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3] tracking-widest block mb-2">
-                  EMPIRICAL PROTOCOL
-                </span>
-                <h2 className="font-serif-display text-3xl sm:text-5xl text-white leading-tight">
-                  The process of <span className="font-serif italic text-[#B9E5F3]">recovery</span>
-                </h2>
-                <p className="text-xs text-[#F5F5F2]/70 font-light mt-2 leading-relaxed">
-                  Four synchronized architectural steps convert acute lifestyle disruptions into permanent habit momentum.
-                </p>
-              </div>
-
-              {/* 4 Steps: Light cumulatively & take an ice-blue left border */}
-              <div className="space-y-3">
-                {[
-                  {
-                    step: '01',
-                    title: 'Capacity Sensing & Renormalization',
-                    desc: 'Sensors detect 4.5h sleep or 42°C climate friction. Formula Ct dynamically rescales daily actions without moral penalty.'
-                  },
-                  {
-                    step: '02',
-                    title: 'Habit Twin Friction Search',
-                    desc: 'Monte Carlo synthetic agent runner tests 6 disruption scenarios, identifying catastrophic failure points pre-commitment.'
-                  },
-                  {
-                    step: '03',
-                    title: 'Ethics Governor Filtering',
-                    desc: 'Deterministic policy hash intercepts dark patterns, shaming notifications, and caps daily nudges to 3 strictly.'
-                  },
-                  {
-                    step: '04',
-                    title: 'Blameless Flight Recorder & Arrival',
-                    desc: 'One-tap barrier attribution synthesizes personal If-Then recovery rules, reducing Recovery Half-Life to 2.1 days.'
-                  }
-                ].map((item, idx) => {
-                  const isLit = idx <= activeProcessStep;
-                  const isCurrent = idx === activeProcessStep;
-
-                  return (
-                    <div
-                      key={item.step}
-                      className={`p-4 border transition-all duration-300 ${
-                        isCurrent
-                          ? 'border-l-2 border-l-[#B9E5F3] border-t-[#F5F5F2]/20 border-r-[#F5F5F2]/20 border-b-[#F5F5F2]/20 bg-[#F5F5F2]/5'
-                          : isLit
-                          ? 'border-[#F5F5F2]/15 bg-[#F5F5F2]/[0.02] opacity-80'
-                          : 'border-[#F5F5F2]/10 opacity-30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1 font-furniture-mono text-[10.5px]">
-                        <span className={isCurrent ? 'text-[#B9E5F3]' : 'text-[#F5F5F2]/60'}>
-                          STEP {item.step}
-                        </span>
-                        <span>{isLit ? 'RESOLVED' : 'AWAITING'}</span>
-                      </div>
-                      <h4 className="font-serif text-base text-white">{item.title}</h4>
-                      <p className="text-xs text-[#F5F5F2]/70 font-light mt-1 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Right Column: Square Canvas REDRAWN ENTIRELY Per Step + Large Serif Numeral */}
             <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="relative p-6 border border-[#F5F5F2]/15 bg-[#090B0C] flex items-center justify-center">
+              <div className="relative w-full max-w-[380px] aspect-square p-6 border border-[#F5F5F2]/20 bg-[#090B0C] flex flex-col items-center justify-center shadow-lg">
                 {/* Large Serif Index Numeral Counting 01 to 04 */}
                 <div className="absolute top-4 right-6 font-serif-display text-5xl sm:text-6xl text-[#B9E5F3]/70 select-none">
                   0{activeProcessStep + 1}
@@ -807,64 +870,74 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
                 <canvas
                   ref={processCanvasRef}
-                  className="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] block"
+                  className="w-[260px] h-[260px] sm:w-[300px] sm:h-[300px] block"
                   aria-label="Process diagram redrawn per step: concentric rings, phyllotaxis point field, struck grid, settled square"
                 />
+
+                <div className="absolute bottom-4 inset-x-0 text-center font-furniture-mono text-[10px] text-[#B9E5F3] tracking-widest px-4">
+                  {activeProcessStep === 0 && 'CONCENTRIC PULSING RINGS // CAPACITY CT SENSING'}
+                  {activeProcessStep === 1 && '38-POINT PHYLLOTAXIS // 1 LIT NODE CYCLING'}
+                  {activeProcessStep === 2 && '5X5 STRUCK GRID // DETERMINISTIC GOVERNOR FILTER'}
+                  {activeProcessStep === 3 && 'SETTLED GEOMETRIC SQUARE // VERIFIED COMEBACK'}
+                </div>
               </div>
-
-              <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3]">
-                {activeProcessStep === 0 && 'MODE 01 // CONCENTRIC PULSING RINGS (LISTENING)'}
-                {activeProcessStep === 1 && 'MODE 02 // 38-POINT PHYLLOTAXIS WITH 1 LIT NODE (SEARCHING)'}
-                {activeProcessStep === 2 && 'MODE 03 // 5X5 STRUCK GRID WITH 1 ICE ACCENT (EDITING)'}
-                {activeProcessStep === 3 && 'MODE 04 // SETTLED GEOMETRIC SQUARE (ARRIVAL)'}
-              </span>
             </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="w-[91.5vw] max-w-[1360px] mx-auto border-t border-[#F5F5F2]/10 pt-3 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
-            <span>STAGE PROGRESSION: {Math.round(p3 * 100)}%</span>
-            <span>DETERMINISTIC DIAGRAM STATE ENGINE</span>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          STAGE 4: PARALLAX PLATE AND CLOSING STATEMENT (280svh on Paper #F5F5F2)
-          Canvas of 26 contour lines (every 6th in sage) parallaxing on translateY & scale
-          Content bottom-aligned with one serif statement & italic second clause
+          STAGE 4: PARALLAX PLATE AND CLOSING STATEMENT (Ground on #F5F5F2)
+          Rich architectural summary - No blank canvas voids!
           ===================================================================== */}
-      <section ref={stage4Ref} className="relative h-[280svh] bg-[#F5F5F2] text-[#090B0C]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-end pb-16">
-          {/* Canvas of 26 contour lines parallaxing on translateY (-3% to 3%) and scale (1.06 to 1.03) */}
-          <div
-            className="absolute inset-0 pointer-events-none will-change-transform"
-            style={{
-              transform: `translate3d(0, ${-3 + p4 * 6}%, 0) scale(${1.06 - p4 * 0.03})`,
-              transition: 'transform 0.1s linear'
-            }}
-          >
-            <canvas
-              ref={closingCanvasRef}
-              className="w-full h-full block"
-              aria-hidden="true"
-            />
-          </div>
+      <section ref={stage4Ref} className="relative bg-[#F5F5F2] text-[#090B0C] py-20 border-t border-[#090B0C]/10 overflow-hidden">
+        {/* Parallaxing 26 contour lines canvas behind */}
+        <div className="absolute inset-0 pointer-events-none opacity-80">
+          <canvas ref={closingCanvasRef} className="w-full h-full block" aria-hidden="true" />
+        </div>
 
-          {/* Bottom-Aligned Serif Statement with an Italic Second Clause */}
-          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto space-y-6">
+        <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+          {/* Top Quote Block */}
+          <div className="space-y-4 max-w-4xl">
             <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block tracking-widest">
               [ PRINCIPLE IV: THE VERIFIED COMEBACK ]
             </span>
-            <h2 className="font-serif-display text-4xl sm:text-6xl text-[#090B0C] leading-tight max-w-4xl">
+            <h2 className="font-serif-display text-4xl sm:text-6xl text-[#090B0C] leading-tight">
               "A habit is not a consecutive streak of perfect days."{' '}
               <span className="font-serif italic text-[#090B0C]/75">
                 It is an architecture that endures the bad ones.
               </span>
             </h2>
-            <p className="text-xs sm:text-sm text-[#090B0C]/70 max-w-xl font-light leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#090B0C]/80 max-w-2xl font-light leading-relaxed">
               When fatigue strikes, our BCT 8.7 graded tier shrinks the target to 2 minutes. The habit identity remains continuous, the denominator is shielded, and the user returns without shame.
             </p>
+          </div>
+
+          {/* Four Populated Milestone Cards (Eliminates the empty canvas void!) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-6 bg-[#E9E8E4]/90 border border-[#090B0C]/15 space-y-2">
+              <span className="font-furniture-mono text-[10px] text-[#090B0C]/60 block">METRIC I</span>
+              <span className="text-2xl font-serif text-[#090B0C] block">2.1 Days</span>
+              <p className="text-xs text-[#090B0C]/75 font-light">Recovery Half-Life compressed from 16.5 days to 48 hours.</p>
+            </div>
+
+            <div className="p-6 bg-[#E9E8E4]/90 border border-[#090B0C]/15 space-y-2">
+              <span className="font-furniture-mono text-[10px] text-[#090B0C]/60 block">METRIC II</span>
+              <span className="text-2xl font-serif text-[#090B0C] block">64% vs 8%</span>
+              <p className="text-xs text-[#090B0C]/75 font-light">24-week longitudinal adherence verified in 5,000 synthetic cohorts.</p>
+            </div>
+
+            <div className="p-6 bg-[#E9E8E4]/90 border border-[#090B0C]/15 space-y-2">
+              <span className="font-furniture-mono text-[10px] text-[#090B0C]/60 block">METRIC III</span>
+              <span className="text-2xl font-serif text-[#090B0C] block">Zero Guilt</span>
+              <p className="text-xs text-[#090B0C]/75 font-light">Rolling 28-day consistency with 2 automatic grace exclusions.</p>
+            </div>
+
+            <div className="p-6 bg-[#E9E8E4]/90 border border-[#090B0C]/15 space-y-2">
+              <span className="font-furniture-mono text-[10px] text-[#090B0C]/60 block">METRIC IV</span>
+              <span className="text-2xl font-serif text-[#090B0C] block">k ≥ 20 · ε = 1.0</span>
+              <p className="text-xs text-[#090B0C]/75 font-light">Laplace Differential Privacy strictly shielding shift workers.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -872,8 +945,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* =====================================================================
           NORMAL BAND 1: THREE-COLUMN STATEMENT (Paper Ground #F5F5F2)
           ===================================================================== */}
-      <section className="bg-[#F5F5F2] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-16">
+      <section className="bg-[#F5F5F2] text-[#090B0C] py-20 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
           <div className="max-w-xl space-y-2" data-rev>
             <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
               THREE FOUNDATIONAL TENETS
@@ -883,7 +956,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-8 bg-[#E9E8E4] border border-[#090B0C]/10 space-y-3" data-rev>
               <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
                 01 // BCT 8.7
@@ -892,9 +965,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 Radical Elasticity
               </h3>
               <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
-                <WordSplit
-                  text="Traditional fitness and habit apps force arbitrary 30-minute thresholds. When a user completes 10 minutes instead, the streak counter resets to zero, causing the Abstinence Violation Effect. Rebound introduces three graded tiers: Minimum (2m), Standard (10m), and Stretch (20m). Minimum preserves the identity completely."
-                />
+                Traditional fitness and habit apps force arbitrary 30-minute thresholds. When a user completes 10 minutes instead, the streak counter resets to zero, causing the Abstinence Violation Effect. Rebound introduces three graded tiers: Minimum (2m), Standard (10m), and Stretch (20m). Minimum preserves the identity completely.
               </p>
             </div>
 
@@ -906,9 +977,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 The Habit Twin
               </h3>
               <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
-                <WordSplit
-                  text="A probabilistic Monte Carlo simulation engine that evaluates lifestyle feasibility before day one. It stress-tests schedules against shift rotations, 44°C climate stress, and acute fatigue, proposing greedy elastic patches that elevate survivability from 2 of 6 to 5 of 6."
-                />
+                A probabilistic Monte Carlo simulation engine that evaluates lifestyle feasibility before day one. It stress-tests schedules against shift rotations, 44°C climate stress, and acute fatigue, proposing greedy elastic patches that elevate survivability from 2 of 6 to 5 of 6.
               </p>
             </div>
 
@@ -920,9 +989,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 Governance & Anonymity
               </h3>
               <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
-                <WordSplit
-                  text="Enterprise wellness programs often disguise corporate surveillance. Rebound enforces k-anonymity (k ≥ 20) and Laplace Differential Privacy (ε = 1.0). Program sponsors view aggregate persistence, but individual row-level disclosures are mathematically impossible."
-                />
+                Enterprise wellness programs often disguise corporate surveillance. Rebound enforces k-anonymity (k ≥ 20) and Laplace Differential Privacy (ε = 1.0). Program sponsors view aggregate persistence, but individual row-level disclosures are mathematically impossible.
               </p>
             </div>
           </div>
@@ -931,11 +998,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
       {/* =====================================================================
           NORMAL BAND 2: TERMS TABLE OF RULED ROWS
-          Laid out as Name, Description, Value (Description hidden under 700px)
-          Figures in mono, hairlines rgba(9,11,12,.14)
           ===================================================================== */}
-      <section className="bg-[#DEDFDB] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+      <section className="bg-[#DEDFDB] text-[#090B0C] py-20 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-10">
           <div className="space-y-2" data-rev>
             <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
               VERIFIABLE SPECIFICATIONS
@@ -1004,8 +1069,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* =====================================================================
           NORMAL BAND 3: INTERACTIVE REBOUND SANDBOX (Personas & Simulator)
           ===================================================================== */}
-      <section className="bg-[#F5F5F2] py-24 border-t border-[#090B0C]/10">
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+      <section className="bg-[#F5F5F2] py-20 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-10">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#090B0C]/15 pb-4" data-rev>
             <div>
               <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block mb-1">
@@ -1118,10 +1183,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
       {/* =====================================================================
           NORMAL BAND 4: FAQ OF NATIVE <DETAILS> ROWS
-          CSS-only plus that loses its vertical bar when open
           ===================================================================== */}
-      <section className="bg-[#DEDFDB] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+      <section className="bg-[#DEDFDB] text-[#090B0C] py-20 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-10">
           <div className="space-y-2" data-rev>
             <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
               SYSTEM EXAMINATIONS
@@ -1150,14 +1214,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 a: 'The Habit Twin simulates synthetic agent schedules under stochastic disruption vectors (shift swaps, 44°C climate events, Ramadan windows). It verifies schedule elasticity before commitment, outputting a clear Survivability Score (e.g. 5 of 6).'
               }
             ].map((faq, idx) => (
-              <details key={idx} className="group py-5 transition">
+              <details key={idx} className="group py-4 transition">
                 <summary className="flex items-center justify-between cursor-pointer focus:outline-none">
                   <span className="font-serif text-lg sm:text-xl text-[#090B0C] group-hover:text-[#090B0C]/70 transition">
                     {faq.q}
                   </span>
                   <span className="faq-plus text-[#090B0C] shrink-0 ml-4" />
                 </summary>
-                <p className="mt-3 text-xs sm:text-sm text-[#090B0C]/70 font-light leading-relaxed pr-8 font-body-sans">
+                <p className="mt-3 text-xs sm:text-sm text-[#090B0C]/75 font-light leading-relaxed pr-8 font-body-sans">
                   {faq.a}
                 </p>
               </details>
@@ -1170,7 +1234,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           NORMAL BAND 5: FOOTER (Quiet Luxury Paper Layout)
           ===================================================================== */}
       <footer className="bg-[#F5F5F2] text-[#090B0C] py-16 border-t border-[#090B0C]/10">
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-10">
           <div className="flex flex-wrap items-center justify-between gap-6" data-rev>
             <div>
               <span className="font-serif text-2xl tracking-tight block">REBOUND</span>
