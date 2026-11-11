@@ -8,6 +8,7 @@
 [![Frontend](https://img.shields.io/badge/React_18-TypeScript_·_Vite-61dafb?style=for-the-badge&logo=react)](https://react.dev)
 [![Policy](https://img.shields.io/badge/Ethics_Governor-v1.0.0_(Hash:_368b1932)-f59e0b?style=for-the-badge&logo=shield)](http://localhost:8000/docs)
 [![Compliance](https://img.shields.io/badge/UAE_PDPL-ADHICS_Aligned-10b981?style=for-the-badge&logo=security)](file:///ethics-privacy.md)
+[![Deploy to Render](https://img.shields.io/badge/Deploy_to-Render-46e3b7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
 [![Tests](https://img.shields.io/badge/Automated_Tests-17%2F17_PASSED-emerald?style=for-the-badge&logo=checkmarx)](file:///apps/api/tests)
 
 <p align="center">
@@ -244,7 +245,34 @@ pnpm build
 ```
 *Compiles Vite bundle to `apps/web/dist` in ~6.5s.*
 
-### 4. Docker Deployment
+### 4. 🌐 Deploy to Render (Combined Frontend + Backend · Free Tier)
+
+Rebound is pre-configured for **Render's Free Web Service** hosting both the FastAPI backend and the interactive React SPA from a single service:
+
+#### Option A: One-Click Render Blueprint (Recommended)
+1. Fork or push this repository to your GitHub account.
+2. Log into [Render.com](https://render.com) and click **New +** $\to$ **Blueprint**.
+3. Select your repository. Render will automatically detect [`render.yaml`](file:///render.yaml) and configure:
+   - **Environment:** Python 3.12
+   - **Build Command:** `./render-build.sh`
+   - **Start Command:** `python run.py`
+   - **Plan:** Free
+4. Click **Apply**. Render will build and deploy your unified app with free HTTPS!
+
+#### Option B: Manual Web Service Setup
+1. In Render Dashboard, click **New +** $\to$ **Web Service**.
+2. Connect your repo and set:
+   - **Language:** Python 3
+   - **Build Command:** `./render-build.sh`
+   - **Start Command:** `python run.py`
+   - **Instance Type:** Free
+3. Add Environment Variable:
+   - `DEMO_MODE`: `true`
+4. Click **Create Web Service**.
+
+---
+
+### 5. Docker Deployment
 ```bash
 docker compose -f infra/docker-compose.yml up --build
 ```

@@ -2,9 +2,9 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List, Optional
 
-from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi import FastAPI, Depends, HTTPException, Query, status, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -1072,9 +1072,24 @@ def simulate_demo_lapse(claims: Dict[str, Any] = Depends(get_current_user_claims
     return {"status": "lapse_simulated", "state": "LAPSED", "days_missed": 2}
 
 # Mount static frontend build if it exists
-static_path = os.path.join(os.path.dirname(__file__), "..", "..", "web", "dist")
+static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "web", "dist"))
 if os.path.exists(static_path):
-    app.mount("/", StaticFiles(directory=static_path, html=True), name="static")
+    app.mount("/assets", StaticFiles(directory=os.path.join(static_path, "assets")), name="assets")
+    
+    @app.get("/{full_path:path}")
+    async def serve_spa_frontend(full_path: str):
+        # Allow API and doc paths to be handled by FastAPI routes
+        if full_path.startswith(("v1", "docs", "openapi.json")):
+            raise HTTPException(status_code=404, detail="Not Found")
+        
+        target_file = os.path.join(static_path, full_path)
+        if os.path.isfile(target_file):
+            return FileResponse(target_file)
+        
+        index_file = os.path.join(static_path, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        raise HTTPException(status_code=404, detail="Not Found")
 
 if __name__ == "__main__":
     import uvicorn

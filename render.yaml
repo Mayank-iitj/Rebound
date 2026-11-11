@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: rebound-platform
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: "./render-build.sh"
+    startCommand: "python run.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.2
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_ENCRYPTION_KEY
+        generateValue: true
