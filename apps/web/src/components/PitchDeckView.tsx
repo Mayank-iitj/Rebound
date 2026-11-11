@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ChevronLeft, ChevronRight, Play, Presentation, CheckCircle2, 
   Sparkles, ShieldAlert, Cpu, Heart, BarChart3, FlaskConical, FileText,
-  Activity, ArrowUpRight, Award, Compass, Sun, Eye, EyeOff
+  Activity, ArrowUpRight, Award, Compass, Sun, Eye, EyeOff, RotateCcw
 } from 'lucide-react';
 import { sound } from '../services/sound';
 
