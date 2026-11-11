@@ -1198,6 +1198,43 @@
           }
         ]
       }
+    },
+    "/{full_path}": {
+      "get": {
+        "summary": "Serve Spa Frontend",
+        "operationId": "serve_spa_frontend__full_path__get",
+        "parameters": [
+          {
+            "name": "full_path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Full Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1209,10 +1246,12 @@
             "title": "Text"
           },
           "trigger": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Trigger"
           },
           "action": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Action"
           }
@@ -1314,12 +1353,14 @@
         "properties": {
           "goals": {
             "items": {
+              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
             "title": "Goals"
           },
           "constraints": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Constraints"
           }
@@ -1426,6 +1467,7 @@
             "default": "Fatima"
           },
           "profile": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Profile"
           },
