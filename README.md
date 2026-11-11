@@ -54,6 +54,32 @@ Modern habit trackers suffer from the **Abstinence Violation Effect (AVE)**: whe
 
 ---
 
+## 🌌 Desert Observatory Scroll Choreography
+
+The landing page features a **scroll-choreographed architectural journey** engineered in a warm desert register (Deep Navy `#0B2030` and `#07141F`, Sand `#F0E5D4`, Cream `#F5EDE2`, Ink `#33291E`, and Coral `#C64A32` with soft `#E2705A`):
+
+```mermaid
+graph TD
+    Stage1["Stage 1: Parallax Hero (300svh)<br/>Full-bleed landscape on translateY & scale<br/>Auto-scaled character-count wordmark · 3-stop vertical veil"] --> Stage2["Stage 2: The Opening Frame (360svh)<br/>Photo expands from inset(34% 30% round 4px) to full bleed<br/>Coral numeral 01 rises · Bottom-anchored gradient scrim"]
+    Stage2 --> Stage3["Stage 3: The Circular Iris (320svh)<br/>Radial reveal circle(0% to 78%) on sand ground<br/>Difference-blend inverting headline · Dual mono captions"]
+    Stage3 --> Stage4["Stage 4: Log & Star Field (340svh)<br/>5 cumulative ruled rows light up as floor(p * 5)<br/>220-star phyllotaxis spiral canvas @ 0.035 rad/s"]
+    Stage4 --> Bands["Normal Bands<br/>Closed-Loop Architecture · 3-Column Explainer · Coral Rates Table · Disruption Sandbox · Personas · FAQ"]
+
+    style Stage1 fill:#0B2030,stroke:#E2705A,stroke-width:2px,color:#fff
+    style Stage2 fill:#07141F,stroke:#C64A32,stroke-width:2px,color:#fff
+    style Stage3 fill:#F0E5D4,stroke:#33291E,stroke-width:2px,color:#33291E
+    style Stage4 fill:#0B2030,stroke:#E2705A,stroke-width:2px,color:#fff
+    style Bands fill:#F5EDE2,stroke:#C64A32,stroke-width:2px,color:#33291E
+```
+
+### Architectural Specifications:
+- **Typography Discipline:** Display lines set in **Archivo** variable font (`font-stretch: 74%`, `weight: 800`, letter-spacing `-0.03em`) with exactly **ONE** word per headline in Archivo Italic weight 300 in soft coral (`#E2705A`). All furniture, timestamps, and coordinates in **IBM Plex Mono** at 11px and `+0.2em` uppercase.
+- **Fixed Film-Grain Plate:** Fixed SVG `feTurbulence` fractal noise overlay running at 5% opacity with `mix-blend-mode: overlay`.
+- **Per-Atom Motion Budget:** Every headline and lede splits into per-word inline spans rising 0.4em on a 38ms stagger; ~185 elements move independently with staggered `data-rev` observers.
+- **Phyllotaxis Harmonic Canvas:** Real-time 60fps canvas drawing 220 stars on a golden-ratio spiral (`angle = i * 2.399`, `radius = sqrt(i / 220)`), rotating at `0.035 rad/s` with individual sine twinkling and coral highlights.
+
+---
+
 ## 🏛️ System Architecture & Data Flows
 
 Rebound is architected as a high-performance, closed-loop resilience engine built on **FastAPI**, **SQLite/PostgreSQL**, and **React 18 / Tailwind CSS**:
@@ -61,7 +87,7 @@ Rebound is architected as a high-performance, closed-loop resilience engine buil
 ```mermaid
 flowchart TD
     subgraph Client ["Client Presentation Tier (React 18 + Vite + TypeScript)"]
-        UI["Executive UI / Native Arabic RTL / Hindi"]
+        UI["Desert Observatory UI / Accessible English / 4 Pinned Scroll Stages"]
         Demo["Judge Demo Controller (Personas + Time Travel)"]
         Sound["Web Audio Synthesizer (Micro-Interactions)"]
         TTS["Web Speech API Narration (Accessibility)"]
@@ -122,7 +148,7 @@ When evaluating Rebound, follow this streamlined 180-second sequence (or click *
 
 ```mermaid
 graph LR
-    S1["1. Fatima's Context<br/>(Arabic RTL + Consents)"] --> S2["2. Habit Twin<br/>(2/6 to 5/6 Crash Lift)"]
+    S1["1. Fatima's Context<br/>(Shift Adaptation + Consents)"] --> S2["2. Habit Twin<br/>(2/6 to 5/6 Crash Lift)"]
     S2 --> S3["3. Capacity Sensing<br/>(42°C Heat -> Minimum)"]
     S3 --> S4["4. Flight Recorder<br/>(Lapse -> If-Then Rule)"]
     S4 --> S5["5. Ethics Governor<br/>(Shame Blocked in Real Time)"]
@@ -138,7 +164,7 @@ graph LR
 
 ### Tour Step-by-Step Details:
 1. **Fatima’s Context (`Today` Tab):**
-   - Operating in authentic Arabic RTL (`dir="rtl"`), Fatima is an ICU nurse in Abu Dhabi.
+   - Fatima is an ICU nurse in Abu Dhabi managing rotating 12-hour night shifts and daytime sleep disruptions.
    - Her rolling consistency is **74%** with 2 comebacks recorded. Streaks are strictly prohibited by ADR-007.
 2. **Habit Twin Pre-Mortem Simulator (`Plan` Tab):**
    - Click **Run Crash-Test** (300 Monte Carlo runs). Notice initial survivability is **2 of 6** (fragile under summer heatwaves & night shifts).
