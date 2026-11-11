@@ -7,6 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
+        coldbrook: {
+          paper: '#F5F5F2',
+          tint1: '#E9E8E4',
+          tint2: '#DEDFDB',
+          black: '#090B0C',
+          sage: '#B8C0BC',
+          clay: '#C9C3B9',
+          ice: '#B9E5F3',
+          hairline: 'rgba(9,11,12,0.14)',
+          hairlineLight: 'rgba(9,11,12,0.07)',
+          muted: 'rgba(9,11,12,0.56)'
+        },
         desert: {
           navy: '#0B2030',
           deep: '#07141F',
@@ -43,9 +55,10 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Archivo', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'monospace'],
+        sans: ['"DM Sans"', 'Inter', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+        display: ['"Instrument Serif"', 'Georgia', 'serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
       }
     },
   },

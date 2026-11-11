@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Locale } from '../i18n/translations';
 import { 
-  Zap, ArrowRight, ShieldCheck, Trophy, Presentation, CheckCircle2, 
-  Sparkles, AlertTriangle, Moon, Flame, Clock, RefreshCw, Layers, Lock,
-  ChevronDown, ExternalLink, Code2, Compass, Play
+  ArrowRight, ShieldCheck, Trophy, Presentation, CheckCircle2, 
+  Sparkles, Moon, Flame, Clock, AlertTriangle, Code2
 } from 'lucide-react';
 import { sound } from '../services/sound';
 
@@ -16,42 +15,41 @@ interface LandingPageViewProps {
 }
 
 // -----------------------------------------------------------------------------
-// WordSplit: Helper to split text into per-word inline-block spans rising 0.4em
-// on a 38ms stagger, with exactly ONE italic light word in soft coral (#E2705A).
+// WordSplit: Helper to split text into per-word inline-block spans rising 0.38em
+// on a 38ms stagger, with optional italic ice-blue clause.
 // -----------------------------------------------------------------------------
 interface WordSplitProps {
   text: string;
-  italicWord?: string;
+  italicPhrase?: string;
   baseDelay?: number;
   step?: number;
   className?: string;
-  isRevealed?: boolean;
 }
 
 const WordSplit: React.FC<WordSplitProps> = ({
   text,
-  italicWord,
+  italicPhrase,
   baseDelay = 0,
   step = 38,
-  className = '',
-  isRevealed = true
+  className = ''
 }) => {
   const words = useMemo(() => text.split(/\s+/), [text]);
-  const cleanItalic = italicWord?.toLowerCase().replace(/[^a-z0-9]/gi, '');
+  const italicWords = useMemo(
+    () => (italicPhrase ? italicPhrase.toLowerCase().split(/\s+/) : []),
+    [italicPhrase]
+  );
 
   return (
     <span className={`inline ${className}`}>
       {words.map((word, idx) => {
         const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/gi, '');
-        const isItalic = cleanItalic && cleanWord === cleanItalic;
+        const isItalic = italicWords.some((iw) => iw.replace(/[^a-z0-9]/gi, '') === cleanWord);
         const delay = baseDelay + idx * step;
 
         return (
           <span
             key={idx}
-            className={`word-atom ${isRevealed ? 'is-revealed' : ''} ${
-              isItalic ? 'font-display-italic font-light italic text-[#E2705A]' : ''
-            }`}
+            className={`word-atom ${isItalic ? 'font-serif italic text-[#B9E5F3]' : ''}`}
             style={{
               '--word-delay': `${delay}ms`,
               marginRight: '0.28em'
@@ -72,11 +70,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onOpenJudgeTour,
   onOpenPitchDeck
 }) => {
-  // Pinned stage progress custom states (0 to 1) throttled via rAF
-  const [p1, setP1] = useState(0); // Stage 1: Parallax Hero
-  const [p2, setP2] = useState(0); // Stage 2: The Opening Frame
-  const [p3, setP3] = useState(0); // Stage 3: The Circular Iris
-  const [p4, setP4] = useState(0); // Stage 4: The Log & Star Field
+  // Pinned stage progress states (0 to 1) throttled via rAF
+  const [p1, setP1] = useState(0); // Stage 1: Serif Hero
+  const [p2, setP2] = useState(0); // Stage 2: Horizontal Catalogue Rail
+  const [p3, setP3] = useState(0); // Stage 3: Process with Redrawn Diagram
+  const [p4, setP4] = useState(0); // Stage 4: Parallax Plate Closing Statement
 
   // Stage container refs
   const stage1Ref = useRef<HTMLDivElement>(null);
@@ -84,24 +82,24 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const stage3Ref = useRef<HTMLDivElement>(null);
   const stage4Ref = useRef<HTMLDivElement>(null);
 
-  // Canvas ref for Stage 4 phyllotaxis star field
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Canvas refs
+  const heroCanvasRef = useRef<HTMLCanvasElement>(null);
+  const processCanvasRef = useRef<HTMLCanvasElement>(null);
+  const closingCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Interactive Persona Selector state
+  // Horizontal rail track ref
+  const railTrackRef = useRef<HTMLDivElement>(null);
+  const railInnerWidth = useRef(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  // Interactive Persona state
   const [activePersonaTab, setActivePersonaTab] = useState<'fatima' | 'rajesh' | 'omar' | 'mariam'>('fatima');
 
-  // Interactive mini-simulator state
+  // Interactive Mini-Simulator state
   const [simActivePatch, setSimActivePatch] = useState(false);
   const [activeScenario, setActiveScenario] = useState<'night_shift' | 'heatwave' | 'ramadan' | 'work_crunch'>('night_shift');
 
-  // FAQ open/close accordion state
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  // Mermaid diagram code view toggle
-  const [showMermaidCode, setShowMermaidCode] = useState(false);
-
-  // Current active log row index in Stage 4 (0 to 4)
-  const activeLogRow = Math.min(4, Math.floor(p4 * 5));
+  // Current active step index in Stage 3 (0 to 3)
+  const activeProcessStep = Math.min(3, Math.floor(p3 * 4));
 
   // ---------------------------------------------------------------------------
   // 1. One Single rAF-Throttled Scroll Handler for All 4 Pinned Stages
@@ -132,11 +130,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           setP3(newP3);
           setP4(newP4);
 
-          // Write CSS custom properties on root for GPU-composited styling
-          document.documentElement.style.setProperty('--stage1-p', newP1.toFixed(4));
-          document.documentElement.style.setProperty('--stage2-p', newP2.toFixed(4));
-          document.documentElement.style.setProperty('--stage3-p', newP3.toFixed(4));
-          document.documentElement.style.setProperty('--stage4-p', newP4.toFixed(4));
+          // Write CSS custom properties on root
+          document.documentElement.style.setProperty('--hero-y', `${newP1 * -70}px`);
+          document.documentElement.style.setProperty('--hero-scale', `${1.0 - newP1 * 0.18}`);
+          document.documentElement.style.setProperty('--hero-alpha', `${Math.max(0, 1.0 - newP1 * 1.6)}`);
+          document.documentElement.style.setProperty('--hero-vignette', `${0.35 + newP1 * 0.6}`);
 
           ticking = false;
         });
@@ -144,11 +142,18 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       }
     };
 
+    const handleResize = () => {
+      railInnerWidth.current = window.innerWidth;
+      handleScroll();
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -172,6 +177,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             entry.target.classList.add('is-revealed');
             const atoms = entry.target.querySelectorAll('.word-atom');
             atoms.forEach((atom) => atom.classList.add('is-revealed'));
+            observer.unobserve(entry.target);
           }
         });
       },
@@ -183,10 +189,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 3. Stage 4: 220-Point Phyllotaxis Star Field Canvas Animation
+  // 3. Stage 1: 46 Drifting Wood-Grain Contour Lines Canvas (Every 9th in Ice)
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = heroCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -194,68 +200,37 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     let animId: number;
     let startTime = performance.now();
 
-    // High DPI scaling
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const size = 460;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    ctx.scale(dpr, dpr);
-
-    const totalStars = 220;
-    const center = size / 2;
-    const maxRadius = size * 0.44;
-
     const render = (now: number) => {
-      const elapsed = (now - startTime) / 1000;
-      ctx.clearRect(0, 0, size, size);
+      const w = (canvas.width = window.innerWidth);
+      const h = (canvas.height = window.innerHeight);
+      const t = (now - startTime) / 1000;
 
-      // Faint Concentric Horizon Rings
-      ctx.save();
-      ctx.strokeStyle = 'rgba(245, 237, 226, 0.08)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 6]);
-      ctx.beginPath();
-      ctx.arc(center, center, maxRadius * 0.52, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.clearRect(0, 0, w, h);
 
-      ctx.strokeStyle = 'rgba(245, 237, 226, 0.12)';
-      ctx.setLineDash([]);
-      ctx.beginPath();
-      ctx.arc(center, center, maxRadius * 0.96, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
+      const totalLines = 46;
+      const spacing = h / (totalLines + 2);
 
-      // Phyllotaxis Spiral points (angle = i * 2.399, radius = sqrt(i / 220))
-      // Rotating at 0.035 radians per second
-      const baseRotation = elapsed * 0.035;
+      for (let i = 0; i < totalLines; i++) {
+        const isIce = i % 9 === 0;
+        const baseY = (i + 1.5) * spacing;
 
-      for (let i = 0; i < totalStars; i++) {
-        const phi = i * 2.399;
-        const currentAngle = phi + baseRotation;
-        const radius = Math.sqrt(i / totalStars) * maxRadius;
-
-        const x = center + Math.cos(currentAngle) * radius;
-        const y = center + Math.sin(currentAngle) * radius;
-
-        // Individual twinkling on its own sine
-        const twinkle = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(elapsed * 2.2 + i * 0.71));
-        const isCoral = i % 23 === 0;
-
-        ctx.save();
-        if (isCoral) {
-          ctx.fillStyle = '#E2705A';
-          ctx.shadowColor = '#C64A32';
-          ctx.shadowBlur = 9;
-          ctx.beginPath();
-          ctx.arc(x, y, 2.8, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = `rgba(245, 237, 226, ${(twinkle * 0.78).toFixed(3)})`;
-          ctx.beginPath();
-          ctx.arc(x, y, 1.25, 0, Math.PI * 2);
-          ctx.fill();
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 12) {
+          const s1 = Math.sin(x * 0.0035 + t * 0.4 + i * 0.28) * 14;
+          const s2 = Math.sin(x * 0.0012 + t * 0.18 + i * 0.15) * 8;
+          const y = baseY + s1 + s2;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
-        ctx.restore();
+
+        if (isIce) {
+          ctx.strokeStyle = 'rgba(185, 229, 243, 0.34)'; // Ice blue at 34%
+          ctx.lineWidth = 1.25;
+        } else {
+          ctx.strokeStyle = 'rgba(245, 245, 242, 0.075)'; // Paper ground at 7.5%
+          ctx.lineWidth = 0.85;
+        }
+        ctx.stroke();
       }
 
       animId = requestAnimationFrame(render);
@@ -265,113 +240,287 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     return () => cancelAnimationFrame(animId);
   }, []);
 
-  // Character count for wordmark auto-scaling calculation
-  const wordmarkChars = 27; // "REBOUND SURVIVES DISRUPTIONS"
+  // ---------------------------------------------------------------------------
+  // 4. Stage 3: Redrawn Canvas Diagram (Entirely Replaced Per Step)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const canvas = processCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let startTime = performance.now();
+    const size = 360;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.scale(dpr, dpr);
+
+    const render = (now: number) => {
+      const elapsed = (now - startTime) / 1000;
+      ctx.clearRect(0, 0, size, size);
+      const center = size / 2;
+
+      // MODE 0: Concentric Pulsing Rings (Listening / Capacity Sensing)
+      if (activeProcessStep === 0) {
+        const numRings = 6;
+        for (let r = 1; r <= numRings; r++) {
+          const pulse = Math.sin(elapsed * 2.2 + r * 0.6) * 6;
+          const radius = (r * 24) + pulse;
+
+          ctx.beginPath();
+          ctx.arc(center, center, radius, 0, Math.PI * 2);
+          if (r === 3) {
+            ctx.strokeStyle = '#B9E5F3';
+            ctx.lineWidth = 1.5;
+          } else {
+            ctx.strokeStyle = 'rgba(245, 245, 242, 0.18)';
+            ctx.lineWidth = 0.8;
+          }
+          ctx.stroke();
+        }
+      }
+      // MODE 1: 38-Point Phyllotaxis Spiral with 1 Lit Point Cycling (Searching)
+      else if (activeProcessStep === 1) {
+        const totalPoints = 38;
+        const litIndex = Math.floor(elapsed * 9) % totalPoints;
+        const maxR = size * 0.42;
+
+        for (let q = 0; q < totalPoints; q++) {
+          const angle = q * 2.399;
+          const radius = Math.sqrt(q / totalPoints) * maxR;
+          const x = center + Math.cos(angle) * radius;
+          const y = center + Math.sin(angle) * radius;
+
+          ctx.beginPath();
+          if (q === litIndex) {
+            ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#B9E5F3';
+            ctx.shadowColor = '#B9E5F3';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(245, 245, 242, 0.28)';
+            ctx.fill();
+          }
+        }
+      }
+      // MODE 2: 5x5 Grid with All Cells Struck Through Except One Ice (Editing)
+      else if (activeProcessStep === 2) {
+        const cols = 5;
+        const rows = 5;
+        const cellSize = 38;
+        const startX = center - (cols * cellSize) / 2;
+        const startY = center - (rows * cellSize) / 2;
+        const activeCellX = 2;
+        const activeCellY = 2; // Middle cell is ice
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const x = startX + c * cellSize;
+            const y = startY + r * cellSize;
+            const isIceCell = c === activeCellX && r === activeCellY;
+
+            ctx.beginPath();
+            ctx.rect(x, y, cellSize, cellSize);
+            if (isIceCell) {
+              ctx.strokeStyle = '#B9E5F3';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              // Inner filled dot
+              ctx.beginPath();
+              ctx.arc(x + cellSize / 2, y + cellSize / 2, 3, 0, Math.PI * 2);
+              ctx.fillStyle = '#B9E5F3';
+              ctx.fill();
+            } else {
+              ctx.strokeStyle = 'rgba(245, 245, 242, 0.12)';
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+              // Struck-through diagonal hairline
+              ctx.beginPath();
+              ctx.moveTo(x + 6, y + 6);
+              ctx.lineTo(x + cellSize - 6, y + cellSize - 6);
+              ctx.strokeStyle = 'rgba(245, 245, 242, 0.2)';
+              ctx.stroke();
+            }
+          }
+        }
+      }
+      // MODE 3: Single Settled Square with a Pulsing Center Dot (Arrival)
+      else if (activeProcessStep === 3) {
+        const boxSize = 130;
+        ctx.beginPath();
+        ctx.rect(center - boxSize / 2, center - boxSize / 2, boxSize, boxSize);
+        ctx.strokeStyle = 'rgba(245, 245, 242, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Pulsing center dot in ice blue
+        const pulse = 4 + Math.sin(elapsed * 3) * 2;
+        ctx.beginPath();
+        ctx.arc(center, center, pulse, 0, Math.PI * 2);
+        ctx.fillStyle = '#B9E5F3';
+        ctx.shadowColor = '#B9E5F3';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, [activeProcessStep]);
+
+  // ---------------------------------------------------------------------------
+  // 5. Stage 4: 26 Contour Lines Canvas (Every 6th in Sage) Parallaxing
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const canvas = closingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let startTime = performance.now();
+
+    const render = (now: number) => {
+      const w = (canvas.width = window.innerWidth);
+      const h = (canvas.height = window.innerHeight);
+      const t = (now - startTime) / 1000;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const totalLines = 26;
+      const spacing = h / (totalLines + 2);
+
+      for (let i = 0; i < totalLines; i++) {
+        const isSage = i % 6 === 0;
+        const baseY = (i + 1) * spacing;
+
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 14) {
+          const s1 = Math.sin(x * 0.0028 + t * 0.25 + i * 0.3) * 12;
+          const y = baseY + s1;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+
+        if (isSage) {
+          ctx.strokeStyle = 'rgba(184, 192, 188, 0.45)'; // Sage
+          ctx.lineWidth = 1.2;
+        } else {
+          ctx.strokeStyle = 'rgba(9, 11, 12, 0.06)'; // Subtle dark hairline on paper
+          ctx.lineWidth = 0.8;
+        }
+        ctx.stroke();
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  // Character count calculation for wordmark auto-scaling
+  const wordmarkChars = 18; // "REBOUND / RESILIENT"
 
   return (
-    <div className="relative bg-[#0B2030] text-[#F5EDE2] selection:bg-[#C64A32] selection:text-white overflow-x-hidden">
-      {/* Fixed Film-Grain Plate (5% opacity, SVG feTurbulence data URI) */}
-      <div className="film-grain-plate" aria-hidden="true" />
-
+    <div className="relative bg-[#F5F5F2] text-[#090B0C] selection:bg-[#B9E5F3] selection:text-[#090B0C] font-body-sans overflow-x-hidden no-radius">
       {/* =====================================================================
-          STAGE 1: PARALLAX PHOTOGRAPHIC HERO (300svh on deep navy #0B2030)
+          STAGE 1: SERIF HERO ON FOUR VARIABLES (280svh on near-black #090B0C)
           ===================================================================== */}
-      <section ref={stage1Ref} className="relative h-[300svh]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#0B2030] flex flex-col justify-between">
-          {/* Photograph: inset -8% top/bottom with translateY and scale parallax */}
+      <section ref={stage1Ref} className="relative h-[280svh]">
+        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#090B0C] text-[#F5F5F2] flex flex-col justify-between">
+          {/* Canvas: 46 drifting contour lines (every 9th line in ice blue) */}
+          <canvas
+            ref={heroCanvasRef}
+            className="absolute inset-0 pointer-events-none w-full h-full"
+            aria-hidden="true"
+          />
+
+          {/* Radial Vignette driven by fourth variable (--hero-vignette) */}
           <div
-            className="absolute inset-x-0 -top-[8%] -bottom-[8%] pointer-events-none will-change-transform"
+            className="absolute inset-0 pointer-events-none transition-opacity duration-150"
             style={{
-              transform: `translate3d(0, ${p1 * -0.22 * 460}px, 0) scale(${1.06 + p1 * 0.06})`,
-              transition: 'transform 0.1s cubic-bezier(0.16, 1, 0.3, 1)'
+              opacity: 0.35 + p1 * 0.6,
+              background:
+                'radial-gradient(circle at 50% 50%, rgba(9,11,12,0.1) 0%, rgba(9,11,12,0.92) 85%)'
             }}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2560&q=85"
-              alt="Abu Dhabi desert dunes under night sky horizon"
-              className="w-full h-full object-cover brightness-[0.72] contrast-[1.08]"
-              loading="eager"
-            />
-            {/* 3-Stop Vertical Veil (55% top, 12% third, 72% base) */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(11,32,48,0.55) 0%, rgba(11,32,48,0.12) 33%, rgba(11,32,48,0.72) 100%)'
-              }}
-            />
-          </div>
+          />
 
           {/* Top Furniture Strap */}
-          <div className="relative z-10 px-6 sm:px-12 pt-8 flex items-center justify-between text-xs">
-            <span className="font-mono-furniture text-[#F5EDE2]/70 tracking-widest flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-[#E2705A] animate-pulse" />
-              <span>DOH ABU DHABI HEALTHCARE PILOT SPEC // PERSISTENCE B3</span>
+          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto pt-8 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#F5F5F2]/60 border-b border-[#F5F5F2]/10 pb-4">
+            <span className="flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 bg-[#B9E5F3] inline-block" />
+              <span>REBOUND // DOH ABU DHABI HEALTHCARE RESILIENCE SPECIFICATION</span>
             </span>
-            <span className="font-mono-furniture text-[#E2705A] hidden md:inline-block">
-              ZERO STREAK SHAMING · 28-DAY ROLLING
+            <span className="hidden md:inline-block text-[#B9E5F3]">
+              BCT 8.7 GRADED ELASTICITY · ZERO STREAK SHAME
             </span>
           </div>
 
-          {/* Main Type Block (Lifts 60px & Fades Out over the Stage) */}
+          {/* Wordmark Type Block (Lifted by --hero-y, scaled by --hero-scale, faded by --hero-alpha) */}
           <div
-            className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 w-full my-auto space-y-6 text-center sm:text-start"
+            className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto my-auto space-y-8 will-change-transform"
             style={{
-              transform: `translate3d(0, ${p1 * -60}px, 0)`,
-              opacity: Math.max(0, 1 - p1 * 1.55),
-              willChange: 'transform, opacity'
+              transform: `translate3d(0, ${p1 * -70}px, 0) scale(${1.0 - p1 * 0.18})`,
+              opacity: Math.max(0, 1.0 - p1 * 1.6)
             }}
           >
-            {/* Wide-Tracked Mono Overhead Strap */}
-            <div className="font-mono-furniture text-[#E2705A] font-semibold tracking-[0.25em] text-xs">
-              BEHAVIORAL RESILIENCE ENGINE
+            <div className="font-furniture-mono text-[#B9E5F3] tracking-[0.2em]">
+              THE ARCHITECTURE OF COMEBACKS
             </div>
 
-            {/* Wordmark Sized from Character Count with exactly ONE italic light word */}
+            {/* Wordmark in Instrument Serif with part italic & ice-coloured */}
             <h1
-              className="font-display font-black text-white tracking-tight leading-[0.94] max-w-5xl"
+              className="font-serif-display font-normal text-white tracking-tight leading-[0.92]"
               style={{
-                fontSize: `min(5.5rem, calc(90vw / (${wordmarkChars} * 0.44)))`,
-                whiteSpace: 'normal'
+                fontSize: `min(clamp(3.4rem, 20vw, 14rem), calc(92vw / (${wordmarkChars} * 0.46)))`,
+                whiteSpace: 'nowrap'
               }}
             >
-              REBOUND <span className="font-display-italic font-light italic text-[#E2705A]">SURVIVES</span> REAL DISRUPTIONS
+              REBOUND <span className="font-serif italic text-[#B9E5F3]">survives</span>
             </h1>
 
-            {/* Lede: Split into per-word inline spans rising 0.4em on 38ms stagger */}
-            <p className="max-w-2xl text-sm sm:text-base text-[#F5EDE2]/80 leading-relaxed font-sans">
+            {/* Lede: Split into per-word inline spans rising 0.38em on 38ms stagger */}
+            <p className="max-w-xl text-sm sm:text-base text-[#F5F5F2]/80 leading-relaxed font-body-sans font-light">
               <WordSplit
-                text="Engineered for the bad week. While traditional habit apps assume standard daytime routines and punish disruptions by zeroing streaks, Rebound stress-tests life friction pre-emptively—adapting to night shifts, 44°C heatwaves, and acute fatigue with elastic fallback tiers."
-                italicWord="friction"
-                baseDelay={120}
+                text="Every health system is built for the ideal week. Patients drop out in the bad one. Rebound models real-world chaos pre-emptively—adapting to 12-hour night shifts, 44°C summer heatwaves, and acute exhaustion with elastic graded tiers, zero streak guilt, and verifiable 28-day persistence."
+                italicPhrase="ideal week"
+                baseDelay={100}
               />
             </p>
 
-            {/* Actions CTAs with per-atom delays */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3.5 pt-4">
+            {/* Action Buttons: Exactly ONE button in Ice Blue */}
+            <div className="flex flex-wrap items-center gap-4 pt-4 font-furniture-mono text-[10.5px]">
+              <button
+                onClick={() => {
+                  sound.playTap();
+                  onLaunchApp();
+                }}
+                className="px-6 py-3.5 bg-[#B9E5F3] hover:bg-white text-[#090B0C] font-semibold transition tracking-wider border border-[#B9E5F3]"
+              >
+                ENTER PLATFORM →
+              </button>
+
               {onOpenJudgeTour && (
                 <button
                   onClick={() => {
                     sound.playTap();
                     onOpenJudgeTour();
                   }}
-                  className="px-6 py-3.5 rounded-[4px] bg-[#C64A32] hover:bg-[#A83D28] text-white font-mono-furniture font-bold text-xs tracking-wider transition-all duration-300 shadow-md flex items-center space-x-2"
+                  className="px-6 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2] border border-[#F5F5F2]/30 transition tracking-wider flex items-center space-x-2"
                 >
-                  <Trophy className="w-3.5 h-3.5 text-amber-300" />
-                  <span>3-MIN JUDGE DEMO</span>
+                  <Trophy className="w-3.5 h-3.5 text-[#B9E5F3]" />
+                  <span>3-MIN EVALUATION TOUR</span>
                 </button>
               )}
-
-              <button
-                onClick={() => {
-                  sound.playTap();
-                  onLaunchApp();
-                }}
-                className="px-6 py-3.5 rounded-[4px] bg-[#F5EDE2] hover:bg-[#F0E5D4] text-[#33291E] font-mono-furniture font-bold text-xs tracking-wider transition-all duration-300 shadow-sm flex items-center space-x-2"
-              >
-                <span>EXPLORE LIVE APP</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#C64A32]" />
-              </button>
 
               {onOpenPitchDeck && (
                 <button
@@ -379,499 +528,470 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     sound.playTap();
                     onOpenPitchDeck();
                   }}
-                  className="px-5 py-3.5 rounded-[4px] bg-transparent hover:bg-[#F5EDE2]/10 text-[#F5EDE2] border border-[#F5EDE2]/30 font-mono-furniture text-xs tracking-wider transition"
+                  className="px-5 py-3.5 bg-transparent hover:bg-[#F5F5F2]/10 text-[#F5F5F2]/80 border border-[#F5F5F2]/20 transition tracking-wider"
                 >
-                  <Presentation className="w-3.5 h-3.5 inline mr-1.5 text-[#E2705A]" />
-                  <span>PITCH DECK (12 SLIDES)</span>
+                  PITCH DECK (12 SLIDES)
                 </button>
               )}
             </div>
           </div>
 
-          {/* Bottom Mono Ruled Furniture */}
-          <div className="relative z-10 px-6 sm:px-12 pb-8 border-t border-[#F5EDE2]/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono-furniture pt-4 text-[#F5EDE2]/70">
+          {/* Bottom Mono Furniture Bar */}
+          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto pb-8 border-t border-[#F5F5F2]/10 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
             <div>
-              <span className="block text-[#E2705A]">RECOVERY HALF-LIFE</span>
-              <span className="text-sm font-bold text-white">2.1 DAYS (VS 16.5D)</span>
+              <span className="block text-[#B9E5F3]">RECOVERY HALF-LIFE</span>
+              <span className="text-sm text-white font-serif">2.1 Days</span>
             </div>
             <div>
-              <span className="block text-[#E2705A]">6-MONTH RETENTION</span>
-              <span className="text-sm font-bold text-white">64% (VS 8% BASELINE)</span>
+              <span className="block text-[#B9E5F3]">24-WEEK RETENTION</span>
+              <span className="text-sm text-white font-serif">64% vs 8%</span>
             </div>
             <div>
-              <span className="block text-[#E2705A]">STREAK POLICY</span>
-              <span className="text-sm font-bold text-white">ZERO SHAME / 28-DAY</span>
+              <span className="block text-[#B9E5F3]">STREAK POLICY</span>
+              <span className="text-sm text-white font-serif">Zero Reset</span>
             </div>
             <div>
-              <span className="block text-[#E2705A]">PRIVACY GOVERNOR</span>
-              <span className="text-sm font-bold text-white">k≥20 · LAPLACE ε=1.0</span>
+              <span className="block text-[#B9E5F3]">MATHEMATICAL PRIVACY</span>
+              <span className="text-sm text-white font-serif">k≥20 · ε=1.0</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          STAGE 2: THE OPENING FRAME (360svh stage on deep navy #07141F)
-          Photograph opens from inset(34% 30% round 4px) to inset(0)
+          STAGE 2: HORIZONTAL CATALOGUE RAIL (340svh on tinted paper #E9E8E4)
+          Translates horizontally by exactly its own overflow width
+          5 plates: drawn lobed body outlines with drifting f-holes & ice neck
           ===================================================================== */}
-      <section ref={stage2Ref} className="relative h-[360svh]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#07141F] flex flex-col justify-between">
-          {/* Framed Photograph Expanding to Full Bleed */}
-          <div
-            className="absolute inset-0 pointer-events-none will-change-[clip-path]"
-            style={{
-              clipPath: `inset(${Math.max(0, 34 - p2 * 34)}% ${Math.max(0, 30 - p2 * 30)}% round 4px)`,
-              transition: 'clip-path 0.05s linear'
-            }}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2560&q=85"
-              alt="Golden desert sand ridges under low morning sunlight"
-              className="w-full h-full object-cover brightness-[0.7] contrast-[1.1]"
-              loading="lazy"
-            />
-          </div>
-
-          {/* Top-Right Large Coral Numeral (Rises from 25% to 100% Opacity) */}
-          <div className="relative z-10 px-8 pt-8 flex justify-between items-start">
-            <span className="font-mono-furniture text-[#E2705A] text-xs">
-              STAGE 02 // ARCHITECTURAL SCRUB
-            </span>
-            <div
-              className="font-display font-black text-6xl sm:text-8xl text-[#C64A32] select-none pointer-events-none transition-opacity duration-300"
-              style={{ opacity: 0.25 + p2 * 0.75 }}
-            >
-              01
-            </div>
-          </div>
-
-          {/* Bottom-Left Caption with Dedicated Gradient Scrim (56% height to 92% dark) */}
-          <div className="relative z-10 w-full mt-auto">
-            {/* Scrim: anchored at bottom, fading in with image scrub */}
-            <div
-              className="absolute inset-x-0 bottom-0 pointer-events-none"
-              style={{
-                height: '60%',
-                background:
-                  'linear-gradient(to top, rgba(7,20,31,0.94) 0%, rgba(7,20,31,0.7) 45%, rgba(7,20,31,0) 100%)',
-                opacity: Math.min(1, p2 * 1.4)
-              }}
-            />
-
-            <div className="relative max-w-3xl px-6 sm:px-12 pb-12 space-y-4">
-              <span className="font-mono-furniture text-[#E2705A] text-xs tracking-widest block">
-                [ PRINCIPLE 01: RADICAL ELASTICITY ]
+      <section ref={stage2Ref} className="relative h-[340svh] bg-[#E9E8E4]">
+        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-between py-10">
+          {/* Header & Mono Count at Top */}
+          <div className="w-[91.5vw] max-w-[1360px] mx-auto flex items-end justify-between border-b border-[#090B0C]/15 pb-4">
+            <div>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block mb-1">
+                STAGE 02 // GENERATED CATALOGUE
               </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-black text-white leading-tight">
-                THE BAD WEEK IS <span className="font-display-italic font-light italic text-[#E2705A]">INEVITABLE</span>. COLLAPSE IS NOT.
+              <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
+                Five Core <span className="font-serif italic text-[#090B0C]/70">resilience</span> Plates
               </h2>
-              <p className="text-xs sm:text-sm text-[#F5EDE2]/85 leading-relaxed font-sans max-w-2xl">
-                <WordSplit
-                  text="78% of habit dropouts happen after a single severe disruption. When Fatima pulls a 12-hour ICU night shift or Rajesh works in 44°C summer heat, traditional rigid goals produce moral guilt. Rebound introduces BCT 8.7 graded elasticity: Minimum 2-min micro-action, Standard 10-min routine, and Stretch 20-min goal. Your denominator is preserved. The habit survives."
-                  italicWord="guilt"
-                  baseDelay={100}
-                />
-              </p>
-              <div className="flex items-center space-x-6 pt-2 font-mono-furniture text-[11px] text-[#F5EDE2]/60">
-                <span>TIER 1: MIN (2 MIN)</span>
-                <span>TIER 2: STD (10 MIN)</span>
-                <span>TIER 3: STRETCH (20 MIN)</span>
-              </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          STAGE 3: THE CIRCULAR IRIS (320svh on Sand Ground #F0E5D4)
-          Photograph reveals through clip-path circle(calc(p * 78%) at 50% 50%)
-          Headline sits in mix-blend-mode: difference inverting over picture
-          ===================================================================== */}
-      <section ref={stage3Ref} className="relative h-[320svh]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#F0E5D4] text-[#33291E] flex flex-col justify-between">
-          {/* Circular Iris Expanding Photograph */}
-          <div
-            className="absolute inset-0 pointer-events-none will-change-[clip-path]"
-            style={{
-              clipPath: `circle(${p3 * 78}% at 50% 50%)`,
-              transition: 'clip-path 0.05s linear'
-            }}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1547234935-80c7145ec969?auto=format&fit=crop&w=2560&q=85"
-              alt="Pristine desert dune curve under bright natural sunlight"
-              className="w-full h-full object-cover brightness-[0.8] contrast-[1.12]"
-              loading="lazy"
-            />
-          </div>
-
-          {/* Top Furniture Strap */}
-          <div className="relative z-20 px-8 pt-8 flex items-center justify-between text-xs font-mono-furniture text-[#33291E]/70">
-            <span>[ STAGE 03: SIMULATION REVEAL ]</span>
-            <span>PRE-EMPTIVE CRASH-TESTING</span>
-          </div>
-
-          {/* Centered Headline in mix-blend-mode: difference (Inverts against sand & picture) */}
-          <div
-            className="relative z-20 my-auto text-center px-6 max-w-4xl mx-auto will-change-transform"
-            style={{
-              mixBlendMode: 'difference',
-              color: '#FFFFFF',
-              opacity: Math.max(0, 1 - Math.max(0, (p3 - 0.62) / 0.38))
-            }}
-          >
-            <span className="font-mono-furniture text-xs tracking-widest block mb-3 text-[#E2705A]">
-              HABIT TWIN CRASH-TEST ENGINE
+            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">
+              05 PLATES // HARMONIC POLAR LOOPS
             </span>
-            <h2 className="font-display text-4xl sm:text-6xl font-black tracking-tight leading-[1.05]">
-              CRASH-TEST HABITS BEFORE REAL LIFE <span className="font-display-italic font-light italic text-[#E2705A]">BREAKS</span> THEM
-            </h2>
-            <p className="mt-4 text-xs sm:text-sm max-w-xl mx-auto font-sans opacity-90 leading-relaxed">
-              Stress-test your routine against 6 synthetic Abu Dhabi disruption profiles—night shift swaps, 44°C heatwaves, Ramadan routines, and 12-hour work crunches.
-            </p>
           </div>
 
-          {/* Mono Caption Pair at Bottom (Fades in only after circle is half open p > 0.5) */}
-          <div
-            className="relative z-20 px-8 pb-8 flex flex-wrap items-center justify-between gap-4 font-mono-furniture text-[11px] transition-opacity duration-500"
-            style={{
-              opacity: p3 > 0.48 ? Math.min(1, (p3 - 0.48) * 2.5) : 0,
-              color: p3 > 0.7 ? '#F5EDE2' : '#33291E'
-            }}
-          >
-            <div className="space-y-0.5">
-              <span className="font-bold block">[ HABIT TWIN ARCHITECTURE ]</span>
-              <span className="opacity-70">MONTE CARLO PROBABILISTIC AGENT RUNNER</span>
+          {/* Horizontal Track Translating by its Overflow Width */}
+          <div className="relative my-auto overflow-visible">
+            <div
+              ref={railTrackRef}
+              className="flex items-center space-x-6 px-[4.25vw] will-change-transform transition-transform duration-75 ease-out"
+              style={{
+                transform: `translate3d(calc(-1 * ${p2} * 1050px), 0, 0)`
+              }}
+            >
+              {[
+                {
+                  id: '01',
+                  name: 'The Shift-Work Chamber',
+                  year: 'OPUS 2026.01',
+                  note: 'Recalibrates daytime sleep clashing with standard walk windows; activates 2-minute seated micro-action.'
+                },
+                {
+                  id: '02',
+                  name: 'The 44°C Climate Inversion',
+                  year: 'OPUS 2026.02',
+                  note: 'Sensor-triggered indoor hydration and somatic breathwork when outdoor thermal index exceeds 40°C.'
+                },
+                {
+                  id: '03',
+                  name: 'The Seated Adaptive Core',
+                  year: 'OPUS 2026.03',
+                  note: 'Dedicated upper-body wheelchair mobility library eliminating step-count bias entirely.'
+                },
+                {
+                  id: '04',
+                  name: 'The Blameless Flight Recorder',
+                  year: 'OPUS 2026.04',
+                  note: '20-second barrier attribution diagnosing fatigue or illness and generating verified If-Then rules.'
+                },
+                {
+                  id: '05',
+                  name: 'The 28-Day Consistency Ring',
+                  year: 'OPUS 2026.05',
+                  note: 'Rolling persistence ledger with automatic grace exclusions protecting denominator from shame.'
+                }
+              ].map((item, idx) => {
+                // Generated Instrument-Body Plate (Polar loop with cos(2a) and cos(4a) terms)
+                // Seeded off item index idx
+                const seed = idx + 1;
+                const c1 = 0.22 + seed * 0.03;
+                const c2 = 0.12 - seed * 0.015;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex-none w-[clamp(250px,26vw,330px)] bg-[#F5F5F2] border border-[#090B0C]/15 p-6 flex flex-col justify-between space-y-4"
+                  >
+                    {/* Top Plate Info */}
+                    <div className="flex items-center justify-between font-furniture-mono text-[10.5px] text-[#090B0C]/60 border-b border-[#090B0C]/10 pb-2">
+                      <span>PLATE {item.id}</span>
+                      <span>{item.year}</span>
+                    </div>
+
+                    {/* SVG Generated Instrument-Body Plate (4/5 Aspect Ratio, Drawn, No Photography) */}
+                    <div className="aspect-[4/5] w-full bg-[#E9E8E4]/60 border border-[#090B0C]/10 flex items-center justify-center p-4 relative overflow-hidden">
+                      <svg
+                        viewBox="0 0 200 250"
+                        className="w-full h-full"
+                        aria-hidden="true"
+                      >
+                        {/* Lobed Body Outline filled in clay #C9C3B9, stroked in ink #090B0C */}
+                        <path
+                          d={`M ${Array.from({ length: 64 })
+                            .map((_, step) => {
+                              const a = (step / 64) * Math.PI * 2;
+                              const r = 68 * (1 + c1 * Math.cos(2 * a) + c2 * Math.cos(4 * a));
+                              const x = 100 + r * Math.sin(a);
+                              const y = 135 + r * Math.cos(a) * 1.35;
+                              return `${step === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+                            })
+                            .join(' ')} Z`}
+                          fill="#C9C3B9"
+                          stroke="#090B0C"
+                          strokeWidth="1.25"
+                        />
+
+                        {/* Ice Blue Neck Line */}
+                        <line
+                          x1="100"
+                          y1="30"
+                          x2="100"
+                          y2="170"
+                          stroke="#B9E5F3"
+                          strokeWidth="1.5"
+                        />
+
+                        {/* Two Mirrored F-Holes drifting on sine wave */}
+                        <path
+                          d="M 72 105 Q 68 120 74 135 Q 80 148 76 160"
+                          fill="none"
+                          stroke="#090B0C"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M 128 105 Q 132 120 126 135 Q 120 148 124 160"
+                          fill="none"
+                          stroke="#090B0C"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Item Name & Note */}
+                    <div className="space-y-1">
+                      <h3 className="font-serif text-lg text-[#090B0C] leading-snug">
+                        {item.name}
+                      </h3>
+                      <p className="font-body-sans text-xs text-[#090B0C]/70 leading-relaxed font-light">
+                        {item.note}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="text-end space-y-0.5">
-              <span className="font-bold block text-[#C64A32]">[ 5 OF 6 RESILIENCE LIFT ]</span>
-              <span className="opacity-70">ONE-TAP ADAPTIVE ELASTIC PATCH VERIFIED</span>
-            </div>
+          </div>
+
+          {/* Bottom Rail Navigation Strap */}
+          <div className="w-[91.5vw] max-w-[1360px] mx-auto border-t border-[#090B0C]/15 pt-3 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#090B0C]/60">
+            <span>SCROLL PROGRESSION: {Math.round(p2 * 100)}%</span>
+            <span>POLAR POLYNOMIAL SYNTHESIS</span>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          STAGE 4: THE LOG AND THE STAR FIELD (340svh on deep navy #0B2030)
-          Left: 5 cumulative rows lighting as floor(p * 5) advances
-          Right: 220-point phyllotaxis spiral canvas rotating at 0.035 rad/s
+          STAGE 3: PROCESS STAGE WITH A REDRAWN DIAGRAM (380svh on near-black #090B0C)
+          Left: 4 bordered steps lighting cumulatively with ice-blue left border
+          Right: Square canvas REDRAWN ENTIRELY per step + Serif index 01-04
           ===================================================================== */}
-      <section ref={stage4Ref} className="relative h-[340svh]">
-        <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#0B2030] flex flex-col justify-between py-10 px-6 sm:px-12">
+      <section ref={stage3Ref} className="relative h-[380svh] bg-[#090B0C] text-[#F5F5F2]">
+        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-between py-10">
           {/* Header Bar */}
-          <div className="flex items-center justify-between border-b border-[#F5EDE2]/10 pb-4">
-            <span className="font-mono-furniture text-xs text-[#E2705A]">
-              [ STAGE 04: CLOSED-LOOP ATTRIBUTION & RECOVERY ]
+          <div className="w-[91.5vw] max-w-[1360px] mx-auto flex items-center justify-between border-b border-[#F5F5F2]/10 pb-4">
+            <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3]">
+              STAGE 03 // THE FOUR-STEP RESILIENCE CYCLE
             </span>
-            <span className="font-mono-furniture text-xs text-[#F5EDE2]/60 hidden sm:inline-block">
-              ACTIVE STAGE INDEX: 0{activeLogRow + 1} OF 05
+            <span className="font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
+              DIAGRAM STATE: 0{activeProcessStep + 1} OF 04
             </span>
           </div>
 
-          {/* Two-Column Stage Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center my-auto">
-            {/* Left Column: Headline and 5 Cumulative Ruled Rows */}
-            <div className="space-y-6 max-w-xl">
+          {/* Two-Column Process Stage */}
+          <div className="w-[91.5vw] max-w-[1360px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center my-auto">
+            {/* Left Column: Headline with Italic Ice Clause + 4 Bordered Steps */}
+            <div className="space-y-6 max-w-lg">
               <div>
-                <span className="font-mono-furniture text-[#E2705A] text-xs tracking-widest block mb-2">
-                  THE POST-DISRUPTION CYCLE
+                <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3] tracking-widest block mb-2">
+                  EMPIRICAL PROTOCOL
                 </span>
-                <h2 className="font-display text-3xl sm:text-4xl font-black text-white leading-tight">
-                  THE FLIGHT RECORDER <span className="font-display-italic font-light italic text-[#E2705A]">REWRITES</span> THE LAPSE
+                <h2 className="font-serif-display text-3xl sm:text-5xl text-white leading-tight">
+                  The process of <span className="font-serif italic text-[#B9E5F3]">recovery</span>
                 </h2>
-                <p className="text-xs text-[#F5EDE2]/70 mt-2 font-sans">
-                  Instead of streak loss and self-blame, Rebound triggers a low-friction Flight Recorder prompt to convert disruption into a personalized comeback rule.
+                <p className="text-xs text-[#F5F5F2]/70 font-light mt-2 leading-relaxed">
+                  Four synchronized architectural steps convert acute lifestyle disruptions into permanent habit momentum.
                 </p>
               </div>
 
-              {/* 5 Ruled Rows Lighting Cumulatively as floor(p * 5) advances */}
-              <div className="space-y-2.5">
+              {/* 4 Steps: Light cumulatively & take an ice-blue left border */}
+              <div className="space-y-3">
                 {[
                   {
-                    time: '[02:40 AM]',
-                    label: 'CIRCADIAN DISRUPTION DETECTED',
-                    note: 'Fatima logs 4.5h post-shift sleep. Auto-grace triggered; denominator shielded from zeroing out.'
+                    step: '01',
+                    title: 'Capacity Sensing & Renormalization',
+                    desc: 'Sensors detect 4.5h sleep or 42°C climate friction. Formula Ct dynamically rescales daily actions without moral penalty.'
                   },
                   {
-                    time: '[07:15 AM]',
-                    label: 'FLIGHT RECORDER ATTRIBUTION',
-                    note: 'One-tap low-friction chips identify acute shift fatigue with zero moralizing copy.'
+                    step: '02',
+                    title: 'Habit Twin Friction Search',
+                    desc: 'Monte Carlo synthetic agent runner tests 6 disruption scenarios, identifying catastrophic failure points pre-commitment.'
                   },
                   {
-                    time: '[04:58 PM]',
-                    label: 'RECOVERY RULE SYNTHESIS',
-                    note: '"If night shift clashes, switch outdoor 20m run to 2-min seated stretch post-wake."'
+                    step: '03',
+                    title: 'Ethics Governor Filtering',
+                    desc: 'Deterministic policy hash intercepts dark patterns, shaming notifications, and caps daily nudges to 3 strictly.'
                   },
                   {
-                    time: '[05:00 PM]',
-                    label: 'ETHICS GOVERNOR EVALUATION',
-                    note: 'Rule verified against R1 (anti-shame), R2 (nudge budget cap), and R10 (anchor support).'
-                  },
-                  {
-                    time: '[+48.0 H]',
-                    label: 'COMEBACK VERIFIED',
-                    note: 'Recovery Half-Life logged at 2.1 days (vs 16.5d industry baseline). Score intact.'
+                    step: '04',
+                    title: 'Blameless Flight Recorder & Arrival',
+                    desc: 'One-tap barrier attribution synthesizes personal If-Then recovery rules, reducing Recovery Half-Life to 2.1 days.'
                   }
-                ].map((row, idx) => {
-                  const isLit = idx <= activeLogRow;
-                  const isCurrent = idx === activeLogRow;
+                ].map((item, idx) => {
+                  const isLit = idx <= activeProcessStep;
+                  const isCurrent = idx === activeProcessStep;
 
                   return (
                     <div
-                      key={idx}
-                      className={`p-3 rounded-[4px] border transition-all duration-300 font-sans ${
+                      key={item.step}
+                      className={`p-4 border transition-all duration-300 ${
                         isCurrent
-                          ? 'bg-[#C64A32]/15 border-[#E2705A] text-white shadow-xs'
+                          ? 'border-l-2 border-l-[#B9E5F3] border-t-[#F5F5F2]/20 border-r-[#F5F5F2]/20 border-b-[#F5F5F2]/20 bg-[#F5F5F2]/5'
                           : isLit
-                          ? 'bg-[#F5EDE2]/5 border-[#F5EDE2]/20 text-[#F5EDE2]'
-                          : 'opacity-30 border-transparent text-[#F5EDE2]/40'
+                          ? 'border-[#F5F5F2]/15 bg-[#F5F5F2]/[0.02] opacity-80'
+                          : 'border-[#F5F5F2]/10 opacity-30'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono-furniture text-[11px] text-[#E2705A] font-bold">
-                          {row.time}
+                      <div className="flex items-center justify-between mb-1 font-furniture-mono text-[10.5px]">
+                        <span className={isCurrent ? 'text-[#B9E5F3]' : 'text-[#F5F5F2]/60'}>
+                          STEP {item.step}
                         </span>
-                        <span className="font-mono-furniture text-[10px] opacity-75">
-                          {isLit ? 'RESOLVED ✓' : 'STANDBY'}
-                        </span>
+                        <span>{isLit ? 'RESOLVED' : 'AWAITING'}</span>
                       </div>
-                      <h4 className="text-xs font-bold font-display">{row.label}</h4>
-                      <p className="text-[11px] opacity-80 mt-0.5 leading-snug">{row.note}</p>
+                      <h4 className="font-serif text-base text-white">{item.title}</h4>
+                      <p className="text-xs text-[#F5F5F2]/70 font-light mt-1 leading-relaxed">
+                        {item.desc}
+                      </p>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Right Column: Square Phyllotaxis Spiral Canvas */}
-            <div className="flex flex-col items-center justify-center">
-              <div className="relative p-3 rounded-[4px] border border-[#F5EDE2]/15 bg-[#07141F]/80 shadow-inner">
-                <canvas
-                  ref={canvasRef}
-                  className="w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] block"
-                  aria-label="220-point phyllotaxis spiral star field rotating at 0.035 radians per second"
-                />
-                <div className="absolute bottom-4 inset-x-0 text-center font-mono-furniture text-[10px] text-[#E2705A] tracking-widest">
-                  PHYLLOTAXIS HARMONIC // 220 VERIFIED RETURN NODES
+            {/* Right Column: Square Canvas REDRAWN ENTIRELY Per Step + Large Serif Numeral */}
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="relative p-6 border border-[#F5F5F2]/15 bg-[#090B0C] flex items-center justify-center">
+                {/* Large Serif Index Numeral Counting 01 to 04 */}
+                <div className="absolute top-4 right-6 font-serif-display text-5xl sm:text-6xl text-[#B9E5F3]/70 select-none">
+                  0{activeProcessStep + 1}
                 </div>
+
+                <canvas
+                  ref={processCanvasRef}
+                  className="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] block"
+                  aria-label="Process diagram redrawn per step: concentric rings, phyllotaxis point field, struck grid, settled square"
+                />
               </div>
+
+              <span className="font-furniture-mono text-[10.5px] text-[#B9E5F3]">
+                {activeProcessStep === 0 && 'MODE 01 // CONCENTRIC PULSING RINGS (LISTENING)'}
+                {activeProcessStep === 1 && 'MODE 02 // 38-POINT PHYLLOTAXIS WITH 1 LIT NODE (SEARCHING)'}
+                {activeProcessStep === 2 && 'MODE 03 // 5X5 STRUCK GRID WITH 1 ICE ACCENT (EDITING)'}
+                {activeProcessStep === 3 && 'MODE 04 // SETTLED GEOMETRIC SQUARE (ARRIVAL)'}
+              </span>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-[#F5EDE2]/10 pt-3 flex items-center justify-between text-xs font-mono-furniture text-[#F5EDE2]/60">
-            <span>SCRUB ADVANCEMENT: {Math.round(p4 * 100)}%</span>
-            <span>RHL RECORDED: 2.1 DAYS</span>
+          <div className="w-[91.5vw] max-w-[1360px] mx-auto border-t border-[#F5F5F2]/10 pt-3 flex items-center justify-between font-furniture-mono text-[10.5px] text-[#F5F5F2]/60">
+            <span>STAGE PROGRESSION: {Math.round(p3 * 100)}%</span>
+            <span>DETERMINISTIC DIAGRAM STATE ENGINE</span>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          NORMAL BAND 1: CLOSED-LOOP SYSTEM ARCHITECTURE (MERMAID SPECIFICATION)
+          STAGE 4: PARALLAX PLATE AND CLOSING STATEMENT (280svh on Paper #F5F5F2)
+          Canvas of 26 contour lines (every 6th in sage) parallaxing on translateY & scale
+          Content bottom-aligned with one serif statement & italic second clause
           ===================================================================== */}
-      <section className="bg-[#07141F] py-20 px-6 sm:px-12 border-t border-[#F5EDE2]/10">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#F5EDE2]/15 pb-6">
-            <div data-rev>
-              <span className="font-mono-furniture text-[#E2705A] text-xs block mb-1">
-                SYSTEM VERIFICATION & TRACEABILITY
-              </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-black text-white">
-                CLOSED-LOOP <span className="font-display-italic font-light italic text-[#E2705A]">ARCHITECTURE</span>
-              </h2>
-            </div>
-            <button
-              onClick={() => setShowMermaidCode(!showMermaidCode)}
-              className="flex items-center space-x-2 font-mono-furniture text-xs px-4 py-2 rounded-[4px] bg-[#F5EDE2]/10 hover:bg-[#F5EDE2]/20 border border-[#F5EDE2]/25 text-[#F5EDE2] transition"
-            >
-              <Code2 className="w-3.5 h-3.5 text-[#E2705A]" />
-              <span>{showMermaidCode ? 'VIEW VISUAL DIAGRAM' : 'VIEW MERMAID CODE'}</span>
-            </button>
+      <section ref={stage4Ref} className="relative h-[280svh] bg-[#F5F5F2] text-[#090B0C]">
+        <div className="sticky top-0 h-[100svh] overflow-hidden flex flex-col justify-end pb-16">
+          {/* Canvas of 26 contour lines parallaxing on translateY (-3% to 3%) and scale (1.06 to 1.03) */}
+          <div
+            className="absolute inset-0 pointer-events-none will-change-transform"
+            style={{
+              transform: `translate3d(0, ${-3 + p4 * 6}%, 0) scale(${1.06 - p4 * 0.03})`,
+              transition: 'transform 0.1s linear'
+            }}
+          >
+            <canvas
+              ref={closingCanvasRef}
+              className="w-full h-full block"
+              aria-hidden="true"
+            />
           </div>
 
-          {showMermaidCode ? (
-            <div className="p-6 rounded-[4px] bg-[#0B2030] border border-[#F5EDE2]/20 font-mono text-xs text-[#F5EDE2] space-y-2 overflow-x-auto">
-              <span className="text-[#E2705A] font-bold block mb-2">// Mermaid Architecture Specification</span>
-              <pre className="leading-relaxed">
-{`graph TD
-    A[Disruption Ingestion: Weather 44C / ICU Night Shift / Wearable Off] --> B[Habit Twin Simulator: 6 Synthetic Friction Archetypes]
-    B --> C[BCT 8.7 Elastic Scaler: Min 2m / Std 10m / Stretch 20m]
-    C --> D[Ethics & Privacy Governor: R1-R15 Anti-Shame, Nudge Budget, Anchor R10]
-    D --> E[Daily Execution Loop: Today View + Web Speech Narration]
-    E -->|Lapse Detected| F[Flight Recorder: 1-Tap Barrier Attribution]
-    F --> G[Synthesized Personal Recovery Rule]
-    G --> H[Verified Comeback Logged: RHL Cut to 2.1 Days]
-    H -->|Denominator Protected| C
-    
-    subgraph Privacy Envelope [Differential Privacy & Anonymity]
-        D -.-> DP[Laplace DP ε=1.0 · k>=20 Cell Suppression · Zero Row-Level Leak]
-    end`}
-              </pre>
-            </div>
-          ) : (
-            /* Visual Flow Graph */
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-3 pt-4" data-rev>
-              {[
-                { step: '01', title: 'DISRUPTION INGESTION', desc: 'Weather index, shift schedule, or manual report signals lifestyle stress.' },
-                { step: '02', title: 'HABIT TWIN PRE-TEST', desc: 'Monte Carlo models survivability across 6 synthetic shock scenarios.' },
-                { step: '03', title: 'ELASTIC SCALER', desc: 'BCT 8.7 downsizes session to Minimum 2m to protect habit continuity.' },
-                { step: '04', title: 'ETHICS GOVERNOR', desc: 'Enforces R1 anti-shame lexicon, nudge caps, and Anchor privacy.' },
-                { step: '05', title: 'FLIGHT RECORDER', desc: 'Post-lapse attribution generates verified personal recovery rules.' },
-                { step: '06', title: 'VERIFIED COMEBACK', desc: 'Restores volume within 48h, cutting RHL from 16.5d to 2.1 days.' }
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-[4px] bg-[#0B2030] border border-[#F5EDE2]/15 hover:border-[#E2705A] transition space-y-2"
-                >
-                  <span className="font-mono-furniture text-[#E2705A] text-xs font-bold block">
-                    STEP {item.step}
-                  </span>
-                  <h4 className="font-display font-bold text-sm text-white">{item.title}</h4>
-                  <p className="text-[11px] text-[#F5EDE2]/70 leading-relaxed font-sans">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* =====================================================================
-          NORMAL BAND 2: THREE-COLUMN EXPLAINER (Warm Cream Ground #F5EDE2)
-          ===================================================================== */}
-      <section className="bg-[#F5EDE2] text-[#33291E] py-24 px-6 sm:px-12 border-t border-[#E6D8C3]">
-        <div className="max-w-6xl mx-auto space-y-16">
-          <div className="text-center max-w-2xl mx-auto space-y-3" data-rev>
-            <span className="font-mono-furniture text-[#C64A32] text-xs tracking-widest block font-bold">
-              THE THREE ARCHITECTURAL PILLARS
+          {/* Bottom-Aligned Serif Statement with an Italic Second Clause */}
+          <div className="relative z-10 w-[91.5vw] max-w-[1360px] mx-auto space-y-6">
+            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block tracking-widest">
+              [ PRINCIPLE IV: THE VERIFIED COMEBACK ]
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-black tracking-tight text-[#33291E]">
-              DESIGNED FOR THE <span className="font-display-italic font-light italic text-[#C64A32]">UNPREDICTABLE</span>
+            <h2 className="font-serif-display text-4xl sm:text-6xl text-[#090B0C] leading-tight max-w-4xl">
+              "A habit is not a consecutive streak of perfect days."{' '}
+              <span className="font-serif italic text-[#090B0C]/75">
+                It is an architecture that endures the bad ones.
+              </span>
             </h2>
-            <p className="text-xs sm:text-sm text-[#33291E]/70 font-sans leading-relaxed">
-              Every system component replaces traditional motivational coercion with empirical behavior change science.
+            <p className="text-xs sm:text-sm text-[#090B0C]/70 max-w-xl font-light leading-relaxed">
+              When fatigue strikes, our BCT 8.7 graded tier shrinks the target to 2 minutes. The habit identity remains continuous, the denominator is shielded, and the user returns without shame.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================================
+          NORMAL BAND 1: THREE-COLUMN STATEMENT (Paper Ground #F5F5F2)
+          ===================================================================== */}
+      <section className="bg-[#F5F5F2] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-16">
+          <div className="max-w-xl space-y-2" data-rev>
+            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+              THREE FOUNDATIONAL TENETS
+            </span>
+            <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
+              Quiet <span className="font-serif italic text-[#090B0C]/70">rigor</span> over motivational noise
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Column 1 */}
-            <div className="p-8 rounded-[4px] bg-white border border-[#E6D8C3] space-y-4 shadow-2xs" data-rev>
-              <div className="font-mono-furniture text-xs text-[#C64A32] font-bold">
-                01 // GRADED TASKS (BCT 8.7)
-              </div>
-              <h3 className="font-display text-xl font-bold text-[#33291E]">
-                ELASTIC TIERS OVER STREAK SHAME
+            <div className="p-8 bg-[#E9E8E4] border border-[#090B0C]/10 space-y-3" data-rev>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+                01 // BCT 8.7
+              </span>
+              <h3 className="font-serif text-2xl text-[#090B0C]">
+                Radical Elasticity
               </h3>
-              <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                Traditional habit apps treat an incomplete 30-minute session as a total failure, breaking the streak and triggering the "what-the-hell" abandonment effect. Rebound offers Minimum (2m), Standard (10m), and Stretch (20m) options. On grueling days, doing the Minimum protects habit identity and scores full credit.
+              <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
+                <WordSplit
+                  text="Traditional fitness and habit apps force arbitrary 30-minute thresholds. When a user completes 10 minutes instead, the streak counter resets to zero, causing the Abstinence Violation Effect. Rebound introduces three graded tiers: Minimum (2m), Standard (10m), and Stretch (20m). Minimum preserves the identity completely."
+                />
               </p>
-              <div className="pt-2 border-t border-[#E6D8C3] font-mono-furniture text-[10px] text-[#C64A32]">
-                VERIFIED PERSISTENCE LIFT: +38%
-              </div>
             </div>
 
-            {/* Column 2 */}
-            <div className="p-8 rounded-[4px] bg-white border border-[#E6D8C3] space-y-4 shadow-2xs" data-rev>
-              <div className="font-mono-furniture text-xs text-[#C64A32] font-bold">
-                02 // PRE-EMPTIVE CRASH-TESTING
-              </div>
-              <h3 className="font-display text-xl font-bold text-[#33291E]">
-                HABIT TWIN SIMULATOR
+            <div className="p-8 bg-[#E9E8E4] border border-[#090B0C]/10 space-y-3" data-rev>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+                02 // PRE-COMMITMENT
+              </span>
+              <h3 className="font-serif text-2xl text-[#090B0C]">
+                The Habit Twin
               </h3>
-              <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                Never wait for a habit to fail in production. Before you embark on your plan, our Monte Carlo simulator runs your routine through synthetic shocks—hospital shift rotations, 44°C outdoor heatwaves, Ramadan fasting windows, and urgent overtime crunches—identifying friction points before they occur.
+              <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
+                <WordSplit
+                  text="A probabilistic Monte Carlo simulation engine that evaluates lifestyle feasibility before day one. It stress-tests schedules against shift rotations, 44°C climate stress, and acute fatigue, proposing greedy elastic patches that elevate survivability from 2 of 6 to 5 of 6."
+                />
               </p>
-              <div className="pt-2 border-t border-[#E6D8C3] font-mono-furniture text-[10px] text-[#C64A32]">
-                TESTED ACROSS 4 CORE ARCHETYPES
-              </div>
             </div>
 
-            {/* Column 3 */}
-            <div className="p-8 rounded-[4px] bg-white border border-[#E6D8C3] space-y-4 shadow-2xs" data-rev>
-              <div className="font-mono-furniture text-xs text-[#C64A32] font-bold">
-                03 // MATHEMATICAL PRIVACY
-              </div>
-              <h3 className="font-display text-xl font-bold text-[#33291E]">
-                ETHICS GOVERNOR & LAPLACE DP
+            <div className="p-8 bg-[#E9E8E4] border border-[#090B0C]/10 space-y-3" data-rev>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+                03 // DIFFERENTIAL PRIVACY
+              </span>
+              <h3 className="font-serif text-2xl text-[#090B0C]">
+                Governance & Anonymity
               </h3>
-              <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                Corporate wellness programs often feel like surveillance. Rebound is architected with strict k-anonymity (k ≥ 20) and Laplace Differential Privacy (ε = 1.0). Program sponsors can view aggregate persistence curves, but mathematical proofs guarantee that no employer can ever inspect individual activity or lapse records.
+              <p className="text-xs text-[#090B0C]/75 font-light leading-relaxed">
+                <WordSplit
+                  text="Enterprise wellness programs often disguise corporate surveillance. Rebound enforces k-anonymity (k ≥ 20) and Laplace Differential Privacy (ε = 1.0). Program sponsors view aggregate persistence, but individual row-level disclosures are mathematically impossible."
+                />
               </p>
-              <div className="pt-2 border-t border-[#E6D8C3] font-mono-furniture text-[10px] text-[#C64A32]">
-                DOH ABU DHABI COMPLIANT ARCHITECTURE
-              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          NORMAL BAND 3: RATES & BENCHMARK TABLE OF RULED ROWS (Coral Figures)
+          NORMAL BAND 2: TERMS TABLE OF RULED ROWS
+          Laid out as Name, Description, Value (Description hidden under 700px)
+          Figures in mono, hairlines rgba(9,11,12,.14)
           ===================================================================== */}
-      <section className="bg-[#0B2030] py-24 px-6 sm:px-12 border-t border-[#F5EDE2]/10">
-        <div className="max-w-5xl mx-auto space-y-12">
+      <section className="bg-[#DEDFDB] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
           <div className="space-y-2" data-rev>
-            <span className="font-mono-furniture text-[#E2705A] text-xs block">
-              EMPIRICAL BENCHMARKS & RATES
+            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+              VERIFIABLE SPECIFICATIONS
             </span>
-            <h2 className="font-display text-3xl sm:text-5xl font-black text-white">
-              REBOUND VS <span className="font-display-italic font-light italic text-[#E2705A]">TRADITIONAL</span> APPS
+            <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
+              Platform terms & <span className="font-serif italic text-[#090B0C]/70">empirical</span> benchmarks
             </h2>
           </div>
 
-          <div className="overflow-x-auto border-t border-b border-[#F5EDE2]/15" data-rev>
+          <div className="border-t border-b border-[#090B0C]/15 overflow-x-auto" data-rev>
             <table className="w-full text-start border-collapse text-xs">
               <thead>
-                <tr className="border-b border-[#F5EDE2]/15 font-mono-furniture text-[#F5EDE2]/60">
-                  <th className="py-4 text-start font-medium tracking-wider">BEHAVIORAL SPECIFICATION</th>
-                  <th className="py-4 text-start font-medium tracking-wider">TRADITIONAL HABIT APPS</th>
-                  <th className="py-4 text-start font-medium tracking-wider text-[#E2705A]">REBOUND PLATFORM</th>
+                <tr className="border-b border-[#090B0C]/15 font-furniture-mono text-[10.5px] text-[#090B0C]/60">
+                  <th className="py-4 text-start font-medium tracking-wider">TERM</th>
+                  <th className="py-4 text-start font-medium tracking-wider hidden sm:table-cell">SPECIFICATION & METHODOLOGY</th>
+                  <th className="py-4 text-end font-medium tracking-wider">METRIC VALUE</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F5EDE2]/10 font-sans">
+              <tbody className="divide-y divide-[#090B0C]/10 font-body-sans">
                 {[
                   {
-                    spec: 'Recovery Half-Life (RHL)',
-                    trad: '16.5 DAYS (Severe Dropout Risk)',
-                    rebound: '2.1 DAYS',
-                    delta: '-87% FASTER RETURN'
+                    name: 'Recovery Half-Life (RHL)',
+                    desc: 'Median days required to restore 50% of habit volume following an acute multi-day disruption.',
+                    val: '2.1 DAYS (VS 16.5D)'
                   },
                   {
-                    spec: '24-Week Persistence Rate',
-                    trad: '8% Long-term Retention',
-                    rebound: '64%',
-                    delta: '8X SUSTAINABILITY'
+                    name: '24-Week Adherence',
+                    desc: 'Observed longitudinal persistence across a 5,000 synthetic agent cohort under stochastic disruption.',
+                    val: '64.0% PERSISTENCE'
                   },
                   {
-                    spec: 'Missed Day Consequence',
-                    trad: 'Streak Counter Zeroed / Moral Shame',
-                    rebound: 'DENOMINATOR PROTECTED',
-                    delta: 'ZERO GUILT CLIFF'
+                    name: 'Auto-Grace Denominator Exclusions',
+                    desc: 'Maximum days automatically excluded from the rolling 28-day denominator during acute illness or shift crunch.',
+                    val: '2 DAYS / 28-DAY WINDOW'
                   },
                   {
-                    spec: 'Disruption Handling',
-                    trad: 'Static Alarms / Rigid Target',
-                    rebound: 'BCT 8.7 (2-MIN FALLBACK)',
-                    delta: 'ADAPTIVE ELASTICITY'
+                    name: 'Ethics Governor Verification Hash',
+                    desc: 'Deterministic SHA-256 policy hash screening all outbound nudges against shaming lexicon R1–R14.',
+                    val: '368b1932f91a56bc'
                   },
                   {
-                    spec: 'Privacy Architecture',
-                    trad: 'Raw Health Data Leaked to Sponsors',
-                    rebound: 'k≥20 · LAPLACE ε=1.0',
-                    delta: 'MATHEMATICAL SHIELD'
+                    name: 'Differential Privacy Privacy Budget',
+                    desc: 'Calibrated Laplace noise injection guaranteeing mathematical confidentiality for public health sponsors.',
+                    val: 'k ≥ 20 · ε = 1.0'
                   },
                   {
-                    spec: 'Social Support Policy',
-                    trad: 'Public Leaderboards & Social Pressure',
-                    rebound: 'RESCUE LINK (ZERO HEALTH DATA)',
-                    delta: 'GOVERNOR R10 ENFORCED'
+                    name: 'Anchor Social Support Payload',
+                    desc: 'Total health data transmitted to nominated friend upon request (strictly zero health metrics).',
+                    val: '0 BYTES TRANSMITTED'
                   }
                 ].map((row, i) => (
-                  <tr key={i} className="hover:bg-[#F5EDE2]/5 transition">
-                    <td className="py-4 font-bold text-white font-display text-sm">{row.spec}</td>
-                    <td className="py-4 text-[#F5EDE2]/60 font-mono text-[11px]">{row.trad}</td>
-                    <td className="py-4 text-[#E2705A] font-mono font-bold text-sm">
-                      {row.rebound}
-                      <span className="block text-[10px] text-[#F5EDE2]/60 font-normal mt-0.5">{row.delta}</span>
+                  <tr key={i} className="hover:bg-[#090B0C]/5 transition">
+                    <td className="py-4 font-serif text-sm sm:text-base text-[#090B0C] font-normal">{row.name}</td>
+                    <td className="py-4 text-[#090B0C]/70 font-light pr-8 hidden sm:table-cell">{row.desc}</td>
+                    <td className="py-4 text-end font-furniture-mono text-[10.5px] font-semibold text-[#090B0C] whitespace-nowrap">
+                      {row.val}
                     </td>
                   </tr>
                 ))}
@@ -882,119 +1002,31 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       </section>
 
       {/* =====================================================================
-          NORMAL BAND 4: INTERACTIVE CRASH-TEST MINI-SIMULATOR
+          NORMAL BAND 3: INTERACTIVE REBOUND SANDBOX (Personas & Simulator)
           ===================================================================== */}
-      <section className="bg-[#07141F] py-20 px-6 sm:px-12 border-t border-[#F5EDE2]/10">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F5EDE2]/15 pb-6">
-            <div data-rev>
-              <span className="font-mono-furniture text-[#E2705A] text-xs block mb-1">
+      <section className="bg-[#F5F5F2] py-24 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#090B0C]/15 pb-4" data-rev>
+            <div>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block mb-1">
                 INTERACTIVE HABIT TWIN SANDBOX
               </span>
-              <h2 className="font-display text-3xl font-black text-white">
-                TEST YOUR ROUTINE'S <span className="font-display-italic font-light italic text-[#E2705A]">SURVIVABILITY</span>
+              <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
+                Explore persona <span className="font-serif italic text-[#090B0C]/70">resilience</span> profiles
               </h2>
             </div>
-            <div className="p-3 bg-[#0B2030] rounded-[4px] border border-[#F5EDE2]/20 font-mono-furniture text-xs">
-              <span className="text-[#F5EDE2]/60 block text-[10px]">CURRENT SCORE</span>
-              <span className="text-xl font-bold text-[#E2705A]">
-                {simActivePatch ? '5 OF 6 RESILIENT' : '2 OF 6 FRAGILE'}
-              </span>
+            <div className="font-furniture-mono text-[10.5px] text-[#090B0C]/70">
+              SURVIVABILITY GAUGE: {simActivePatch ? '5 OF 6 RESILIENT' : '2 OF 6 FRAGILE'}
             </div>
-          </div>
-
-          {/* Scenario Buttons */}
-          <div className="space-y-4" data-rev>
-            <span className="font-mono-furniture text-xs text-[#F5EDE2]/70 block">
-              CHOOSE DISRUPTION STRESSOR:
-            </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { id: 'night_shift', label: 'Night-Shift Week', icon: Moon, desc: 'Sleep shifted to daytime' },
-                { id: 'heatwave', label: 'Summer Heat (44°C)', icon: Flame, desc: 'Outdoor exercise unsafe' },
-                { id: 'ramadan', label: 'Ramadan Fasting', icon: Clock, desc: 'Hydration windows inverted' },
-                { id: 'work_crunch', label: 'Emergency 12h Crunch', icon: AlertTriangle, desc: 'Acute time scarcity' }
-              ].map((sc) => {
-                const Icon = sc.icon;
-                const isSel = activeScenario === sc.id;
-                return (
-                  <button
-                    key={sc.id}
-                    onClick={() => setActiveScenario(sc.id as any)}
-                    className={`p-3.5 rounded-[4px] border text-start transition ${
-                      isSel
-                        ? 'bg-[#C64A32]/20 border-[#E2705A] text-white shadow-xs'
-                        : 'bg-[#0B2030] border-[#F5EDE2]/15 text-[#F5EDE2]/70 hover:border-[#F5EDE2]/30'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 mb-2 text-[#E2705A]" />
-                    <span className="font-display font-bold text-xs block">{sc.label}</span>
-                    <span className="text-[10px] text-[#F5EDE2]/50 block mt-0.5">{sc.desc}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Test Simulation Output Card */}
-            <div className="p-6 rounded-[4px] bg-[#0B2030] border border-[#F5EDE2]/15 flex flex-wrap items-center justify-between gap-6 mt-4">
-              <div className="space-y-2 max-w-xl">
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-0.5 rounded-[2px] font-mono-furniture text-[10px] font-bold ${
-                    simActivePatch ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/40' : 'bg-rose-900/60 text-rose-300 border border-rose-500/40'
-                  }`}>
-                    {simActivePatch ? '✓ SURVIVES DISRUPTION (78% COMPLETION)' : '✕ CRITICAL FAILURE (DROPS TO 0%)'}
-                  </span>
-                  <span className="font-mono-furniture text-[10px] text-[#F5EDE2]/60">
-                    {simActivePatch ? 'REBOUND ELASTIC FIX ACTIVE' : 'TRADITIONAL FIXED SCHEDULE'}
-                  </span>
-                </div>
-                <p className="text-xs text-[#F5EDE2]/85 leading-relaxed font-sans">
-                  {simActivePatch
-                    ? 'Walk window automatically shifted to 17:00 post-wake with a 2-minute gentle stretch fallback. Zero streak breakage.'
-                    : 'Traditional rigid schedule mandates a 07:00 morning walk while you are sleeping after hospital shift. Routine breaks.'}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setSimActivePatch(!simActivePatch)}
-                className={`px-5 py-3 rounded-[4px] font-mono-furniture text-xs font-bold transition shadow-xs flex items-center space-x-2 ${
-                  simActivePatch
-                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500'
-                    : 'bg-[#C64A32] hover:bg-[#A83D28] text-white'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{simActivePatch ? 'PATCH APPLIED (+38% LIFT) ✓' : 'APPLY ONE-TAP REBOUND FIX'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          NORMAL BAND 5: PERSONAS INTERACTIVE SHOWCASE
-          ===================================================================== */}
-      <section className="bg-[#F0E5D4] text-[#33291E] py-24 px-6 sm:px-12 border-t border-[#E6D8C3]">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="text-center max-w-xl mx-auto space-y-2" data-rev>
-            <span className="font-mono-furniture text-[#C64A32] text-xs font-bold block">
-              REAL-WORLD LIFESTYLE PROFILES
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-black text-[#33291E]">
-              VALIDATED ACROSS <span className="font-display-italic font-light italic text-[#C64A32]">FOUR</span> PERSONAS
-            </h2>
-            <p className="text-xs text-[#33291E]/70 font-sans">
-              Select a persona to inspect their personalized recovery rules and verified comebacks.
-            </p>
           </div>
 
           {/* Persona Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto" data-rev>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-furniture-mono text-[10.5px]" data-rev>
             {[
-              { id: 'fatima', name: 'Fatima (Nurse)', role: 'Night-Shift ICU Nurse', city: 'Abu Dhabi' },
-              { id: 'rajesh', name: 'Rajesh (Worker)', role: 'Frontline Construction Worker', city: 'Mussafah' },
-              { id: 'omar', name: 'Omar (Adaptive)', role: 'Wheelchair Adaptive Movement', city: 'Abu Dhabi' },
-              { id: 'mariam', name: 'Mariam (Office)', role: 'Sedentary Desk Worker', city: 'Al Maryah' }
+              { id: 'fatima', name: 'FATIMA // ICU NURSE' },
+              { id: 'rajesh', name: 'RAJESH // FRONTLINE WORKER' },
+              { id: 'omar', name: 'OMAR // ADAPTIVE MOBILITY' },
+              { id: 'mariam', name: 'MARIAM // OFFICE DESK' }
             ].map((p) => (
               <button
                 key={p.id}
@@ -1002,10 +1034,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   sound.playTap();
                   setActivePersonaTab(p.id as any);
                 }}
-                className={`px-4 py-2 rounded-[4px] font-mono-furniture text-xs transition border ${
+                className={`p-3 border text-start transition ${
                   activePersonaTab === p.id
-                    ? 'bg-[#C64A32] text-white border-[#C64A32] shadow-xs'
-                    : 'bg-white text-[#33291E] border-[#E6D8C3] hover:bg-[#F5EDE2]'
+                    ? 'bg-[#090B0C] text-[#F5F5F2] border-[#090B0C]'
+                    : 'bg-[#E9E8E4] text-[#090B0C] border-[#090B0C]/10 hover:border-[#090B0C]/30'
                 }`}
               >
                 {p.name}
@@ -1013,91 +1045,71 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             ))}
           </div>
 
-          {/* Selected Persona Card */}
-          <div className="bg-white rounded-[4px] p-8 border border-[#E6D8C3] shadow-xs max-w-3xl mx-auto space-y-6" data-rev>
+          {/* Selected Persona Bio Card */}
+          <div className="p-8 bg-[#E9E8E4] border border-[#090B0C]/10 space-y-4" data-rev>
             {activePersonaTab === 'fatima' && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-[4px] bg-[#C64A32] text-white flex items-center justify-center font-display font-black text-lg">
-                    F
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold font-display text-[#33291E]">Fatima (34) — ICU Night-Shift Nurse (Abu Dhabi)</h4>
-                    <p className="text-xs font-mono text-[#33291E]/60">Rotating 12h night shifts · 4.5h daytime sleep · Movement & Sleep goals</p>
-                  </div>
+              <>
+                <div className="flex items-center justify-between border-b border-[#090B0C]/10 pb-3">
+                  <h3 className="font-serif text-2xl text-[#090B0C]">Fatima (34) — Night-Shift Nurse (Abu Dhabi)</h3>
+                  <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">ROTATING 12H NIGHTS</span>
                 </div>
-                <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                  "Before Rebound, I always dropped off because apps assumed standard day routines and forced morning walks. Rebound stress-tested my plan, detected that night shift week clashed with the walk window, moved it to 17:00 post-wake, and added a 2-minute gentle stretch fallback. When I missed 2 days, no streak was broken, and the recovery rule brought me back within 48 hours."
+                <p className="font-body-sans text-xs sm:text-sm text-[#090B0C]/80 font-light leading-relaxed">
+                  "Before Rebound, I dropped off every wellness program because rigid apps required morning walks right after my 12-hour night shifts. Rebound stress-tested my schedule, moved the action to 17:00 post-wake, and provided a 2-minute stretch fallback. When I missed 2 days, no streak was broken, and the recovery rule brought me back within 48 hours."
                 </p>
-                <div className="p-3 bg-[#F0E5D4]/60 rounded-[4px] border border-[#E6D8C3] text-xs font-mono text-[#33291E]">
-                  <strong>ACTIVE RECOVERY RULE:</strong> "If I miss 2 days post-shift transition, I will do a 2-minute stretch on my first day off."
+                <div className="font-furniture-mono text-[10.5px] text-[#090B0C]/80 border-t border-[#090B0C]/10 pt-3">
+                  ACTIVE RULE: "If I miss 2 days post-shift transition, I will do a 2-minute stretch on my first day off."
                 </div>
-              </div>
+              </>
             )}
 
             {activePersonaTab === 'rajesh' && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-[4px] bg-[#E2705A] text-white flex items-center justify-center font-display font-black text-lg">
-                    R
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold font-display text-[#33291E]">Rajesh (41) — Frontline Construction Worker (Mussafah)</h4>
-                    <p className="text-xs font-mono text-[#33291E]/60">Outdoor 44°C heat · Low-literacy audio mode · Smoking reduction</p>
-                  </div>
+              <>
+                <div className="flex items-center justify-between border-b border-[#090B0C]/10 pb-3">
+                  <h3 className="font-serif text-2xl text-[#090B0C]">Rajesh (41) — Construction Worker (Mussafah)</h3>
+                  <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">44°C HEAT & AUDIO MODE</span>
                 </div>
-                <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                  "Working under 44°C heat causes heavy exhaustion. Rebound never shames me. When heat exceeds 42°C, it immediately suggests indoor hydration and 2-minute deep breathing. Through the supporter link, Vikram just sends me a friendly hello — zero health data leakage, zero embarrassment."
+                <p className="font-body-sans text-xs sm:text-sm text-[#090B0C]/80 font-light leading-relaxed">
+                  "Working outdoors under extreme heat leaves no energy for heavy workouts. Rebound automatically detects when Abu Dhabi heat passes 40°C and switches my targets to indoor hydration and deep breathing. Through the Rescue Link, my friend Vikram sends me a friendly check-in with zero raw health data shared."
                 </p>
-                <div className="p-3 bg-[#F0E5D4]/60 rounded-[4px] border border-[#E6D8C3] text-xs font-mono text-[#33291E]">
-                  <strong>SUPPORTER LINK (GOVERNOR R10):</strong> Vikram receives friendly nudge prompts with zero raw biometric data.
+                <div className="font-furniture-mono text-[10.5px] text-[#090B0C]/80 border-t border-[#090B0C]/10 pt-3">
+                  GOVERNOR R10 ENFORCED: Zero biometric metrics disclosed to supporters.
                 </div>
-              </div>
+              </>
             )}
 
             {activePersonaTab === 'omar' && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-[4px] bg-[#0B2030] text-white flex items-center justify-center font-display font-black text-lg">
-                    O
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold font-display text-[#33291E]">Omar (52) — Adaptive Movement (Abu Dhabi)</h4>
-                    <p className="text-xs font-mono text-[#33291E]/60">Wheelchair user · Seated mobility routine · Zero step bias</p>
-                  </div>
+              <>
+                <div className="flex items-center justify-between border-b border-[#090B0C]/10 pb-3">
+                  <h3 className="font-serif text-2xl text-[#090B0C]">Omar (52) — Adaptive Movement (Abu Dhabi)</h3>
+                  <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">WHEELCHAIR SEATED MOBILITY</span>
                 </div>
-                <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                  "Most apps assume 10,000 steps is the sole health metric and make me feel excluded. Rebound provides a dedicated seated mobility library and measures my upper-body consistency with zero step bias."
+                <p className="font-body-sans text-xs sm:text-sm text-[#090B0C]/80 font-light leading-relaxed">
+                  "Most health apps assume 10,000 steps is the only valid health indicator, which excludes wheelchair users entirely. Rebound provides a seated upper-body mobility library, measuring consistency and torso stamina with zero step-count bias."
                 </p>
-                <div className="p-3 bg-[#F0E5D4]/60 rounded-[4px] border border-[#E6D8C3] text-xs font-mono text-[#33291E]">
-                  <strong>ADAPTIVE SPECIFICATION:</strong> Evaluates seated chest openers, torso rotation, and upper-limb stamina.
+                <div className="font-furniture-mono text-[10.5px] text-[#090B0C]/80 border-t border-[#090B0C]/10 pt-3">
+                  ADAPTIVE ARCHITECTURE: Step bias strictly eliminated from denominator.
                 </div>
-              </div>
+              </>
             )}
 
             {activePersonaTab === 'mariam' && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-[4px] bg-teal-800 text-white flex items-center justify-center font-display font-black text-lg">
-                    M
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold font-display text-[#33291E]">Mariam (29) — Office Worker (Al Maryah Island)</h4>
-                    <p className="text-xs font-mono text-[#33291E]/60">Long sedentary hours · Hydration & screen wind-down · Consistent comebacks</p>
-                  </div>
+              <>
+                <div className="flex items-center justify-between border-b border-[#090B0C]/10 pb-3">
+                  <h3 className="font-serif text-2xl text-[#090B0C]">Mariam (29) — Office Desk Worker (Al Maryah Island)</h3>
+                  <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60">SEDENTARY DESK HOURS</span>
                 </div>
-                <p className="text-xs text-[#33291E]/80 leading-relaxed font-sans">
-                  "Deadlines always broke my previous habit trackers. With Rebound, during project crunch weeks the app gracefully downsizes my movement target to a 1-minute office stretch. My 28-day score never resets, and I have completed 3 verified comebacks this month."
+                <p className="font-body-sans text-xs sm:text-sm text-[#090B0C]/80 font-light leading-relaxed">
+                  "Quarterly corporate crunch weeks always caused me to abandon my routine. With Rebound, high-stress weeks automatically scale my movement to a 1-minute desk stretch. My 28-day score stays protected, and I have completed 3 verified comebacks this month."
                 </p>
-              </div>
+              </>
             )}
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-4 flex justify-end">
               <button
                 onClick={() => onSelectPersona(activePersonaTab)}
-                className="px-5 py-2.5 rounded-[4px] bg-[#C64A32] hover:bg-[#A83D28] text-white font-mono-furniture text-xs tracking-wider transition"
+                className="px-6 py-2.5 bg-[#090B0C] hover:bg-[#090B0C]/80 text-[#F5F5F2] font-furniture-mono text-[10.5px] transition tracking-wider"
               >
-                TEST AS {activePersonaTab.toUpperCase()} IN APP →
+                LAUNCH AS {activePersonaTab.toUpperCase()} IN APP →
               </button>
             </div>
           </div>
@@ -1105,117 +1117,102 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       </section>
 
       {/* =====================================================================
-          NORMAL BAND 6: FAQ ACCORDION (Ruled Rows, Wide-Tracked Mono Straps)
+          NORMAL BAND 4: FAQ OF NATIVE <DETAILS> ROWS
+          CSS-only plus that loses its vertical bar when open
           ===================================================================== */}
-      <section className="bg-[#0B2030] py-24 px-6 sm:px-12 border-t border-[#F5EDE2]/10">
-        <div className="max-w-4xl mx-auto space-y-12">
+      <section className="bg-[#DEDFDB] text-[#090B0C] py-24 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
           <div className="space-y-2" data-rev>
-            <span className="font-mono-furniture text-[#E2705A] text-xs block">
-              FREQUENTLY EXAMINED QUESTIONS
+            <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block">
+              SYSTEM EXAMINATIONS
             </span>
-            <h2 className="font-display text-3xl sm:text-5xl font-black text-white">
-              VERIFIABLE <span className="font-display-italic font-light italic text-[#E2705A]">METHODOLOGY</span>
+            <h2 className="font-serif-display text-3xl sm:text-4xl text-[#090B0C]">
+              Frequently addressed <span className="font-serif italic text-[#090B0C]/70">methodologies</span>
             </h2>
           </div>
 
-          <div className="divide-y divide-[#F5EDE2]/15 border-t border-b border-[#F5EDE2]/15" data-rev>
+          <div className="divide-y divide-[#090B0C]/15 border-t border-b border-[#090B0C]/15" data-rev>
             {[
               {
                 q: 'Why does Rebound eliminate streak counters entirely?',
-                a: 'Empirical behavioral psychology shows that streak counters create an all-or-nothing cognitive bias. When an inevitable life disruption occurs (illness, shift work, family emergencies), losing a 40-day streak triggers the "what-the-hell" effect, leading to a complete abandonment of the behavior. Rebound uses rolling 28-day consistency with automatic grace days, ensuring missed days never reset progress to zero.'
+                a: 'Behavioral research demonstrates that consecutive day streaks induce an all-or-nothing cognitive bias. When life disruptions inevitably occur, losing a 40-day streak triggers abandonment. Rebound replaces streaks with rolling 28-day consistency rings and auto-grace exclusions.'
               },
               {
-                q: 'What is Recovery Half-Life (RHL) and how is it calculated?',
-                a: 'Recovery Half-Life (ml-spec §7) is our primary clinical and behavioral metric. It measures the duration in days from the post-disruption volume trough until the user regains 50% of their pre-disruption volume. While traditional apps suffer an average RHL of 16.5 days, Rebound reduces this to 2.1 days through BCT 8.7 graded elasticity and post-lapse recovery rules.'
+                q: 'How is Recovery Half-Life (RHL) mathematically derived?',
+                a: 'Recovery Half-Life (ml-spec §7) measures the duration in days from the post-disruption volume trough until the user regains 50% of their baseline volume. Rebound reduces this duration from 16.5 days to 2.1 days via graded elasticity and 20-second barrier diagnosis.'
               },
               {
-                q: 'How does the Ethics & Privacy Governor protect user confidentiality?',
-                a: 'The Governor enforces mathematical anonymity. Subgroup analyses require k ≥ 20; any cell below 20 users is strictly suppressed. Furthermore, aggregate reporting injects calibrated Laplace noise (ε = 1.0), making re-identification mathematically impossible. Program sponsors and employers can never view individual row-level data.'
+                q: 'How does the Ethics Governor prevent employer surveillance?',
+                a: 'The Governor enforces strict mathematical anonymity. Subgroup analyses require k ≥ 20; any cell below 20 individuals is suppressed. Aggregate metrics inject calibrated Laplace noise (ε = 1.0), making re-identification mathematically impossible.'
               },
               {
-                q: 'How does the Habit Twin Monte Carlo simulator evaluate survivability?',
-                a: 'The Habit Twin instantiates synthetic agent schedules and subjects them to stochastic disruption events (shift rotations, heatwaves, urgent work demands). It evaluates whether the habit schedule has sufficient temporal and energetic elasticity to withstand disruptions without complete cessation, outputting a clear Survivability Score (e.g., 5 of 6).'
+                q: 'How does the Habit Twin Monte Carlo engine operate?',
+                a: 'The Habit Twin simulates synthetic agent schedules under stochastic disruption vectors (shift swaps, 44°C climate events, Ramadan windows). It verifies schedule elasticity before commitment, outputting a clear Survivability Score (e.g. 5 of 6).'
               }
             ].map((faq, idx) => (
-              <div key={idx} className="py-5">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full flex items-center justify-between text-start space-x-4 focus:outline-none"
-                >
-                  <span className="font-display font-bold text-base sm:text-lg text-[#F5EDE2] hover:text-[#E2705A] transition">
+              <details key={idx} className="group py-5 transition">
+                <summary className="flex items-center justify-between cursor-pointer focus:outline-none">
+                  <span className="font-serif text-lg sm:text-xl text-[#090B0C] group-hover:text-[#090B0C]/70 transition">
                     {faq.q}
                   </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-[#E2705A] shrink-0 transition-transform duration-300 ${
-                      openFaq === idx ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-                {openFaq === idx && (
-                  <p className="mt-3 text-xs sm:text-sm text-[#F5EDE2]/75 leading-relaxed font-sans pr-8">
-                    {faq.a}
-                  </p>
-                )}
-              </div>
+                  <span className="faq-plus text-[#090B0C] shrink-0 ml-4" />
+                </summary>
+                <p className="mt-3 text-xs sm:text-sm text-[#090B0C]/70 font-light leading-relaxed pr-8 font-body-sans">
+                  {faq.a}
+                </p>
+              </details>
             ))}
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          NORMAL BAND 7: FINAL HORIZON CALLOUT & FOOTER
+          NORMAL BAND 5: FOOTER (Quiet Luxury Paper Layout)
           ===================================================================== */}
-      <section className="bg-[#07141F] py-24 px-6 sm:px-12 border-t border-[#F5EDE2]/10 text-center space-y-8">
-        <div className="max-w-3xl mx-auto space-y-4" data-rev>
-          <span className="font-mono-furniture text-[#E2705A] text-xs tracking-widest block font-bold">
-            EXPERIENCE THE RESILIENCE ENGINE
-          </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-white leading-tight">
-            READY FOR A HABIT PLAN THAT <span className="font-display-italic font-light italic text-[#E2705A]">SURVIVES</span> REAL LIFE?
-          </h2>
-          <p className="text-xs sm:text-sm text-[#F5EDE2]/70 font-sans max-w-xl mx-auto leading-relaxed">
-            Step into the live daily loop, crash-test your routine against extreme disruption scenarios, and inspect verifiable cohort analytics.
-          </p>
+      <footer className="bg-[#F5F5F2] text-[#090B0C] py-16 border-t border-[#090B0C]/10">
+        <div className="w-[91.5vw] max-w-[1360px] mx-auto space-y-12">
+          <div className="flex flex-wrap items-center justify-between gap-6" data-rev>
+            <div>
+              <span className="font-serif text-2xl tracking-tight block">REBOUND</span>
+              <span className="font-furniture-mono text-[10.5px] text-[#090B0C]/60 block mt-1">
+                DOH ABU DHABI HEALTHCARE PILOT SPECIFICATION
+              </span>
+            </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <button
-              onClick={() => {
-                sound.playTap();
-                onLaunchApp();
-              }}
-              className="px-8 py-4 rounded-[4px] bg-[#C64A32] hover:bg-[#A83D28] text-white font-mono-furniture font-bold text-xs tracking-wider transition-all duration-300 shadow-md flex items-center space-x-2"
-            >
-              <span>LAUNCH LIVE APP</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            {onOpenJudgeTour && (
+            <div className="flex items-center space-x-4 font-furniture-mono text-[10.5px]">
               <button
                 onClick={() => {
                   sound.playTap();
-                  onOpenJudgeTour();
+                  onLaunchApp();
                 }}
-                className="px-6 py-4 rounded-[4px] bg-transparent hover:bg-[#F5EDE2]/10 text-[#F5EDE2] border border-[#F5EDE2]/30 font-mono-furniture text-xs tracking-wider transition"
+                className="px-5 py-3 bg-[#B9E5F3] hover:bg-white text-[#090B0C] font-semibold transition tracking-wider border border-[#B9E5F3]"
               >
-                <Trophy className="w-4 h-4 inline mr-1.5 text-amber-300" />
-                <span>3-MIN JUDGE DEMO</span>
+                LAUNCH APPLICATION →
               </button>
-            )}
+              {onOpenJudgeTour && (
+                <button
+                  onClick={() => {
+                    sound.playTap();
+                    onOpenJudgeTour();
+                  }}
+                  className="px-5 py-3 bg-transparent hover:bg-[#090B0C]/5 text-[#090B0C] border border-[#090B0C]/20 transition tracking-wider"
+                >
+                  JUDGE DEMO
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Minimal Desert Horizon Footer */}
-        <div className="max-w-6xl mx-auto pt-16 mt-16 border-t border-[#F5EDE2]/10 flex flex-wrap items-center justify-between gap-4 font-mono-furniture text-[11px] text-[#F5EDE2]/50">
-          <div>
-            <span>REBOUND PLATFORM // DOH ABU DHABI HEALTHCARE PILOT SPECIFICATION</span>
-          </div>
-          <div className="flex items-center space-x-6">
-            <span>RHL: 2.1D</span>
-            <span>PERSISTENCE: 64%</span>
-            <span>DIFF PRIVACY: ε=1.0</span>
+          <div className="border-t border-[#090B0C]/10 pt-6 flex flex-wrap items-center justify-between gap-4 font-furniture-mono text-[10.5px] text-[#090B0C]/50">
+            <span>© 2026 REBOUND // APACHE-2.0 LICENSE</span>
+            <div className="flex items-center space-x-6">
+              <span>RHL: 2.1D</span>
+              <span>RETENTION: 64%</span>
+              <span>PRIVACY: LAPLACE ε=1.0</span>
+            </div>
           </div>
         </div>
-      </section>
+      </footer>
     </div>
   );
 };
