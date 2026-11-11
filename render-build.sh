@@ -32,3 +32,4 @@ python scripts/seed.py
 echo "=========================================================="
 echo "  🎉 BUILD COMPLETED SUCCESSFULLY — READY TO LAUNCH"
 echo "=========================================================="
+
