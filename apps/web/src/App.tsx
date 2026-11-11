@@ -169,7 +169,7 @@ export const App: React.FC = () => {
       )}
 
       {/* 4. Active Main Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6">
+      <main className={`flex-1 w-full ${currentView === 'landing' ? 'p-0 max-w-none' : 'max-w-6xl mx-auto p-4 sm:p-6'}`}>
         {currentView === 'landing' ? (
           <LandingPageView
             locale={locale}

@@ -7,6 +7,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        desert: {
+          navy: '#0B2030',
+          deep: '#07141F',
+          sand: '#F0E5D4',
+          sandDark: '#E6D8C3',
+          cream: '#F5EDE2',
+          ink: '#33291E',
+          coral: '#C64A32',
+          coralPressed: '#A83D28',
+          coralSoft: '#E2705A',
+        },
         sand: {
           50: '#FDFCF9',
           100: '#FAF7F2',
@@ -32,7 +43,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Archivo', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       }
     },
   },
