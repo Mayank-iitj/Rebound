@@ -54,29 +54,34 @@ Modern habit trackers suffer from the **Abstinence Violation Effect (AVE)**: whe
 
 ---
 
-## 🌌 Desert Observatory Scroll Choreography
+## 🏛️ Quiet Luxury Scroll Choreography
 
-The landing page features a **scroll-choreographed architectural journey** engineered in a warm desert register (Deep Navy `#0B2030` and `#07141F`, Sand `#F0E5D4`, Cream `#F5EDE2`, Ink `#33291E`, and Coral `#C64A32` with soft `#E2705A`):
+The landing page features a **scroll-choreographed architectural journey** engineered in a quiet luxury register (Paper `#F5F5F2`, Tinted Papers `#E9E8E4` and `#DEDFDB`, Near-Black `#090B0C`, Sage `#B8C0BC`, Clay `#C9C3B9`, and one Ice Blue `#B9E5F3` mark):
 
 ```mermaid
 graph TD
-    Stage1["Stage 1: Parallax Hero (300svh)<br/>Full-bleed landscape on translateY & scale<br/>Auto-scaled character-count wordmark · 3-stop vertical veil"] --> Stage2["Stage 2: The Opening Frame (360svh)<br/>Photo expands from inset(34% 30% round 4px) to full bleed<br/>Coral numeral 01 rises · Bottom-anchored gradient scrim"]
-    Stage2 --> Stage3["Stage 3: The Circular Iris (320svh)<br/>Radial reveal circle(0% to 78%) on sand ground<br/>Difference-blend inverting headline · Dual mono captions"]
-    Stage3 --> Stage4["Stage 4: Log & Star Field (340svh)<br/>5 cumulative ruled rows light up as floor(p * 5)<br/>220-star phyllotaxis spiral canvas @ 0.035 rad/s"]
-    Stage4 --> Bands["Normal Bands<br/>Closed-Loop Architecture · 3-Column Explainer · Coral Rates Table · Disruption Sandbox · Personas · FAQ"]
+    Stage1["Stage 1: Serif Hero on 4 Variables (280svh)<br/>46 drifting wood-grain contour lines · Every 9th in ice blue<br/>--hero-y, --hero-scale, --hero-alpha & radial vignette"] --> Stage2["Stage 2: Horizontal Catalogue Rail (340svh)<br/>Translates sideways by measured overflow width<br/>5 drawn instrument plates (polar cos(2a)+cos(4a) loops)"]
+    Stage2 --> Stage3["Stage 3: Process with Redrawn Diagram (380svh)<br/>Left: 4 bordered steps light with ice-blue border<br/>Right: Canvas REDRAWN ENTIRELY per step (01-04)"]
+    Stage3 --> Stage4["Stage 4: Parallax Plate & Statement (280svh)<br/>26 contour lines (every 6th in sage) on translateY & scale<br/>Bottom-aligned serif statement with italic second clause"]
+    Stage4 --> Bands["Normal Bands<br/>3-Column Statement · Ruled Terms Table · Interactive Sandbox · Details FAQ · Luxury Paper Footer"]
 
-    style Stage1 fill:#0B2030,stroke:#E2705A,stroke-width:2px,color:#fff
-    style Stage2 fill:#07141F,stroke:#C64A32,stroke-width:2px,color:#fff
-    style Stage3 fill:#F0E5D4,stroke:#33291E,stroke-width:2px,color:#33291E
-    style Stage4 fill:#0B2030,stroke:#E2705A,stroke-width:2px,color:#fff
-    style Bands fill:#F5EDE2,stroke:#C64A32,stroke-width:2px,color:#33291E
+    style Stage1 fill:#090B0C,stroke:#B9E5F3,stroke-width:2px,color:#fff
+    style Stage2 fill:#E9E8E4,stroke:#090B0C,stroke-width:2px,color:#090B0C
+    style Stage3 fill:#090B0C,stroke:#B9E5F3,stroke-width:2px,color:#fff
+    style Stage4 fill:#F5F5F2,stroke:#090B0C,stroke-width:2px,color:#090B0C
+    style Bands fill:#DEDFDB,stroke:#090B0C,stroke-width:2px,color:#090B0C
 ```
 
-### Architectural Specifications:
-- **Typography Discipline:** Display lines set in **Archivo** variable font (`font-stretch: 74%`, `weight: 800`, letter-spacing `-0.03em`) with exactly **ONE** word per headline in Archivo Italic weight 300 in soft coral (`#E2705A`). All furniture, timestamps, and coordinates in **IBM Plex Mono** at 11px and `+0.2em` uppercase.
-- **Fixed Film-Grain Plate:** Fixed SVG `feTurbulence` fractal noise overlay running at 5% opacity with `mix-blend-mode: overlay`.
-- **Per-Atom Motion Budget:** Every headline and lede splits into per-word inline spans rising 0.4em on a 38ms stagger; ~185 elements move independently with staggered `data-rev` observers.
-- **Phyllotaxis Harmonic Canvas:** Real-time 60fps canvas drawing 220 stars on a golden-ratio spiral (`angle = i * 2.399`, `radius = sqrt(i / 220)`), rotating at `0.035 rad/s` with individual sine twinkling and coral highlights.
+### Architectural & Stylistic Specifications:
+- **Typography Discipline:** Headlines, index numerals, and item names in **Instrument Serif** at 400 in roman and italic (tracking `-0.03em` to `-0.05em`, line-height `0.92` to `0.95`). Body copy in **DM Sans** at weight 300; small furniture in system monospace at `10.5px` and `+0.14em` uppercase.
+- **Inverting Fixed Navigation:** Fixed nav sits in `mix-blend-mode: difference` with `#FFFFFF` color, inverting dynamically across both near-black and paper sections.
+- **Drawn Polar Polynomial Plates:** Zero photography—each catalogue plate is mathematically rendered from a polar loop $r(\theta) = R_0(1 + c_1\cos(2\theta) + c_2\cos(4\theta))$, filled in clay (`#C9C3B9`), stroked in ink (`#090B0C`), with drifting f-holes and an ice-blue neck line.
+- **Canvas Diagram Redrawn Per Step:**
+  - *Mode 01:* Concentric pulsing rings (Listening / Capacity Sensing).
+  - *Mode 02:* 38-point phyllotaxis spiral with 1 cycling lit node (Searching / Friction Pre-Testing).
+  - *Mode 03:* 5x5 struck-through grid with 1 ice cell (Editing / Ethics Governor).
+  - *Mode 04:* Settled geometric square with center pulse (Arrival / Verified Comeback).
+- **Per-Atom Motion Budget:** Every headline and lede splits into inline spans with 38ms incremental delay rising 0.38em; ~200 elements move independently with staggered `data-rev` observers.
 
 ---
 
@@ -87,7 +92,7 @@ Rebound is architected as a high-performance, closed-loop resilience engine buil
 ```mermaid
 flowchart TD
     subgraph Client ["Client Presentation Tier (React 18 + Vite + TypeScript)"]
-        UI["Desert Observatory UI / Accessible English / 4 Pinned Scroll Stages"]
+        UI["Quiet Luxury UI / Inverting Difference Nav / 4 Pinned Scroll Stages"]
         Demo["Judge Demo Controller (Personas + Time Travel)"]
         Sound["Web Audio Synthesizer (Micro-Interactions)"]
         TTS["Web Speech API Narration (Accessibility)"]
