@@ -19,3 +19,4 @@ services:
         generateValue: true
       - key: DB_ENCRYPTION_KEY
         generateValue: true
+

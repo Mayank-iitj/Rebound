@@ -33,3 +33,4 @@ ENV DEMO_MODE=true
 EXPOSE 10000
 
 CMD ["python", "run.py"]
+
