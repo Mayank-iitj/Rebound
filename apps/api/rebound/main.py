@@ -1071,24 +1071,66 @@ def simulate_demo_lapse(claims: Dict[str, Any] = Depends(get_current_user_claims
     db.commit()
     return {"status": "lapse_simulated", "state": "LAPSED", "days_missed": 2}
 
-# Mount static frontend build if it exists
+# Mount static frontend build with resilient SPA cache recovery
 static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "web", "dist"))
 if os.path.exists(static_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(static_path, "assets")), name="assets")
-    
+    assets_dir = os.path.join(static_path, "assets")
+
+    @app.get("/favicon.ico")
+    async def serve_favicon():
+        fav_path = os.path.join(static_path, "favicon.ico")
+        if os.path.isfile(fav_path):
+            return FileResponse(fav_path, media_type="image/x-icon")
+        svg_content = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FFB7B2"/><circle cx="50" cy="50" r="16" fill="#FFFFFF"/></svg>"""
+        return Response(content=svg_content, media_type="image/svg+xml")
+
+    @app.get("/manifest.json")
+    async def serve_manifest():
+        m_path = os.path.join(static_path, "manifest.json")
+        if os.path.isfile(m_path):
+            return FileResponse(m_path, media_type="application/manifest+json")
+        raise HTTPException(status_code=404, detail="Manifest not found")
+
+    @app.get("/assets/{asset_name:path}")
+    async def serve_spa_asset(asset_name: str):
+        target_file = os.path.join(assets_dir, asset_name)
+        if os.path.isfile(target_file):
+            media_type = "application/javascript" if asset_name.endswith(".js") else ("text/css" if asset_name.endswith(".css") else None)
+            return FileResponse(target_file, media_type=media_type, headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+        # Stale cache recovery: If client requested an older hashed asset that was replaced,
+        # fallback to the current active JS or CSS asset so users never see a 404
+        if os.path.isdir(assets_dir):
+            if asset_name.endswith(".js"):
+                js_files = [f for f in os.listdir(assets_dir) if f.endswith(".js")]
+                if js_files:
+                    latest_js = os.path.join(assets_dir, sorted(js_files)[-1])
+                    return FileResponse(latest_js, media_type="application/javascript")
+            elif asset_name.endswith(".css"):
+                css_files = [f for f in os.listdir(assets_dir) if f.endswith(".css")]
+                if css_files:
+                    latest_css = os.path.join(assets_dir, sorted(css_files)[-1])
+                    return FileResponse(latest_css, media_type="text/css")
+
+        raise HTTPException(status_code=404, detail="Asset not found")
+
     @app.get("/{full_path:path}")
     async def serve_spa_frontend(full_path: str):
         # Allow API and doc paths to be handled by FastAPI routes
         if full_path.startswith(("v1", "docs", "openapi.json")):
             raise HTTPException(status_code=404, detail="Not Found")
-        
+
         target_file = os.path.join(static_path, full_path)
         if os.path.isfile(target_file):
             return FileResponse(target_file)
-        
+
         index_file = os.path.join(static_path, "index.html")
         if os.path.isfile(index_file):
-            return FileResponse(index_file)
+            return FileResponse(index_file, headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            })
         raise HTTPException(status_code=404, detail="Not Found")
 
 if __name__ == "__main__":
