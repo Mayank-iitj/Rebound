@@ -7,6 +7,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        softly: {
+          bg: '#FDFCF8',
+          sage: '#E8EFE8',
+          lavender: '#EFEDF4',
+          coral: '#FFB7B2',
+          coralHover: '#FFA49E',
+          dark: '#292524',
+          muted: '#78716C',
+          blobPeach: '#FFE4E1',
+          blobLavender: '#E6E6FA',
+        },
         coldbrook: {
           paper: '#F5F5F2',
           tint1: '#E9E8E4',
@@ -54,10 +65,17 @@ export default {
           light: '#DCFCE7',
         }
       },
+      boxShadow: {
+        'soft-sm': '0 2px 10px -1px rgba(0,0,0,0.03)',
+        'soft-lg': '0 4px 20px -2px rgba(0,0,0,0.05)',
+        'soft-xl': '0 10px 30px -4px rgba(0,0,0,0.06)',
+      },
       fontFamily: {
-        sans: ['"DM Sans"', 'Inter', 'sans-serif'],
+        outfit: ['"Outfit"', 'sans-serif'],
+        cursive: ['"Reenie Beanie"', 'cursive'],
+        sans: ['"Outfit"', '"DM Sans"', 'Inter', 'sans-serif'],
         serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-        display: ['"Instrument Serif"', 'Georgia', 'serif'],
+        display: ['"Outfit"', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
       }
     },

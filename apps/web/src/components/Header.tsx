@@ -30,53 +30,53 @@ export const Header: React.FC<HeaderProps> = ({
 
   if (isLanding) {
     return (
-      <header
-        className="fixed top-0 inset-x-0 z-50 pointer-events-auto"
-        style={{ mixBlendMode: 'difference', color: '#FFFFFF' }}
-      >
-        <div className="w-[91.5vw] max-w-[1360px] mx-auto py-3.5 flex items-center justify-between border-b border-white/20">
+      <header className="fixed top-4 sm:top-5 inset-x-0 z-50 pointer-events-none px-4">
+        <div className="w-[calc(100%-32px)] max-w-4xl mx-auto bg-white/70 backdrop-blur-[20px] border border-stone-200/70 rounded-full px-4 sm:px-6 py-2.5 shadow-soft-lg flex items-center justify-between pointer-events-auto">
+          {/* Circular logo with Coral #FFB7B2 and white dot */}
           <div
-            onClick={() => setCurrentView('landing')}
-            className="flex items-center space-x-3 cursor-pointer select-none"
+            onClick={() => {
+              sound.playTap();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center space-x-2.5 cursor-pointer select-none group"
           >
-            <span className="font-serif text-2xl tracking-tight text-white font-normal">
-              REBOUND
-            </span>
-            <span className="hidden sm:inline-block font-mono text-[10.5px] tracking-widest text-white/70 uppercase">
-              // ADAPTIVE RESILIENCE
+            <div className="w-7 h-7 rounded-full bg-[#FFB7B2] flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
+              <div className="w-2.5 h-2.5 rounded-full bg-white" />
+            </div>
+            <span className="font-outfit font-semibold text-base tracking-tight text-[#292524]">
+              rebound
             </span>
           </div>
 
-          <div className="flex items-center space-x-3 font-mono text-[10.5px] uppercase tracking-wider">
+          {/* Text links in 14px Outfit Medium */}
+          <nav className="hidden md:flex items-center space-x-6 text-[14px] font-outfit font-medium text-[#78716C]">
+            <a href="#scenarios" className="hover:text-[#292524] transition-colors">scenarios</a>
+            <a href="#experience" className="hover:text-[#292524] transition-colors">experience</a>
+            <a href="#stories" className="hover:text-[#292524] transition-colors">stories</a>
+            <a href="#faq" className="hover:text-[#292524] transition-colors">faq</a>
+          </nav>
+
+          {/* Action CTAs */}
+          <div className="flex items-center space-x-2.5">
             {onOpenJudgeTour && (
               <button
                 onClick={() => {
                   sound.playTap();
                   onOpenJudgeTour();
                 }}
-                className="px-3.5 py-1.5 border border-white/40 hover:border-white text-white transition"
+                className="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-outfit font-medium text-[#78716C] hover:text-[#292524] hover:bg-stone-100/70 transition"
               >
-                3-MIN TOUR
+                3-min tour
               </button>
             )}
-
-            {onOpenPitchDeck && (
-              <button
-                onClick={() => {
-                  sound.playTap();
-                  onOpenPitchDeck();
-                }}
-                className="hidden md:inline-block px-3.5 py-1.5 border border-white/40 hover:border-white text-white transition"
-              >
-                PITCH DECK
-              </button>
-            )}
-
             <button
-              onClick={() => setCurrentView('app')}
-              className="px-4 py-1.5 border border-white bg-white text-black font-semibold transition"
+              onClick={() => {
+                sound.playTap();
+                setCurrentView('app');
+              }}
+              className="px-4 py-2 rounded-full bg-[#292524] text-white font-outfit text-xs sm:text-sm font-medium hover:bg-stone-800 transition-all shadow-xs active:scale-95"
             >
-              LAUNCH APP →
+              enter living room →
             </button>
           </div>
         </div>
