@@ -88,6 +88,22 @@ body {
   animation: pulseBreathe 4.5s ease-in-out infinite;
 }
 
+/* Soft low-velocity entrance animations */
+@keyframes softlyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-soft-in {
+  animation: softlyFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Reveal on Scroll (translateY: 30px to 0, opacity 0 to 1, duration 0.8s) */
 [data-rev] {
   opacity: 0;
@@ -97,9 +113,10 @@ body {
   will-change: opacity, transform;
 }
 
-[data-rev].is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+[data-rev].is-revealed,
+[data-rev].is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Hide horizontal scrollbars smoothly */

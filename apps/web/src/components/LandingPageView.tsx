@@ -136,23 +136,52 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [selectedPersonaTab, setSelectedPersonaTab] = useState<'fatima' | 'rajesh' | 'omar' | 'mariam'>('fatima');
 
-  // Reveal-on-scroll observer
+  // Reveal-on-scroll observer with fail-safe immediate visibility
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
+    const reveal = (el: Element) => {
+      el.classList.add('is-revealed');
+      el.classList.add('is-visible');
+    };
 
     const elements = document.querySelectorAll('[data-rev]');
-    elements.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+    // 1. Immediately reveal elements that are already in or near viewport
+    elements.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight + 150) {
+        reveal(el);
+      }
+    });
+
+    // 2. Observe with IntersectionObserver
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              reveal(entry.target);
+              observer?.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.05, rootMargin: '60px 0px 60px 0px' }
+      );
+
+      elements.forEach((el) => observer?.observe(el));
+    } else {
+      elements.forEach(reveal);
+    }
+
+    // 3. Fallback: guarantee all sections are visible within 400ms
+    const timer = setTimeout(() => {
+      elements.forEach(reveal);
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+      observer?.disconnect();
+    };
   }, []);
 
   const handleBreatheClick = () => {
@@ -191,7 +220,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         />
 
         {/* Small Intro Badge */}
-        <div data-rev className="relative z-10 inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/80 border border-stone-200/80 shadow-2xs backdrop-blur-md mb-8">
+        <div className="animate-soft-in relative z-10 inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/80 border border-stone-200/80 shadow-2xs backdrop-blur-md mb-8">
           <div className="w-2 h-2 rounded-full bg-[#FFB7B2]" />
           <span className="text-xs font-medium tracking-normal text-[#78716C]">
             digital living room • adaptive habit resilience
@@ -200,8 +229,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
         {/* Headline with Reenie Beanie cursive accent */}
         <h1
-          data-rev
-          className="relative z-10 text-[42px] sm:text-[64px] md:text-[76px] lg:text-[84px] font-normal leading-[1.05] tracking-tight max-w-4xl text-[#292524]"
+          className="animate-soft-in [animation-delay:100ms] relative z-10 text-[42px] sm:text-[64px] md:text-[76px] lg:text-[84px] font-normal leading-[1.05] tracking-tight max-w-4xl text-[#292524]"
         >
           gentle habits for the{' '}
           <span className="font-cursive text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-[#FFB7B2] font-normal lowercase inline-block -rotate-2 mx-1">
@@ -212,14 +240,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
         {/* Sub-headline max 500px */}
         <p
-          data-rev
-          className="relative z-10 mt-6 text-base sm:text-lg md:text-xl text-[#78716C] max-w-[500px] leading-relaxed font-light"
+          className="animate-soft-in [animation-delay:200ms] relative z-10 mt-6 text-base sm:text-lg md:text-xl text-[#78716C] max-w-[500px] leading-relaxed font-light"
         >
           When life gets heavy, traditional streaks shame you. Rebound automatically downsizes to 2-minute restorative moments so you never fall off.
         </p>
 
         {/* Dual CTA Buttons */}
-        <div data-rev className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-4">
+        <div className="animate-soft-in [animation-delay:300ms] relative z-10 mt-10 flex flex-wrap items-center justify-center gap-4">
           <button
             onClick={() => {
               sound.playTap();
@@ -259,7 +286,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         </div>
 
         {/* Micro reassurance notes */}
-        <div data-rev className="relative z-10 mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#78716C]">
+        <div className="animate-soft-in [animation-delay:400ms] relative z-10 mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#78716C]">
           <span className="flex items-center space-x-1.5">
             <Check className="w-3.5 h-3.5 text-[#FFB7B2]" />
             <span>zero broken streaks</span>
