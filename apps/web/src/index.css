@@ -119,6 +119,21 @@ body {
   transform: translateY(0) !important;
 }
 
+/* Accessibility Toggles */
+html.large-text {
+  font-size: 115%;
+}
+
+html.high-contrast {
+  filter: contrast(1.25);
+}
+
+html.reduced-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
 /* Hide horizontal scrollbars smoothly */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
