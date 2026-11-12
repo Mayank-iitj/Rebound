@@ -83,29 +83,7 @@ export const App: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-sand-100 flex flex-col font-sans text-slate-900 pb-12">
-      {/* 1. Floating Demo & Judge Bar */}
-      <DemoBar
-        locale={locale}
-        setLocale={setLocale}
-        activePersona={activePersona}
-        setActivePersona={(p) => {
-          setActivePersona(p);
-          setCurrentView('app');
-        }}
-        onLapseTriggered={() => {
-          setCurrentView('app');
-          setActiveTab('today');
-          loadAllData();
-        }}
-        onOpenGovernorModal={() => {
-          setCurrentView('app');
-          setActiveTab('governor');
-        }}
-        onOpenJudgeTour={() => setShowJudgeTour(true)}
-        onRefreshData={loadAllData}
-      />
-
+    <div className={`min-h-screen flex flex-col font-sans ${currentView === 'landing' ? 'bg-[#FDFCF8] text-[#292524]' : 'bg-sand-100 text-slate-900 pb-12'}`}>
       {/* 2. Executive Navigation Header */}
       <Header
         locale={locale}
@@ -272,17 +250,41 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 7. Footer */}
-      <footer className="mt-auto border-t border-sand-200 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3">
-          <span>Rebound — Sustaining Healthy Behaviors · Abu Dhabi Pilot Ready</span>
-          <div className="flex items-center space-x-3 rtl:space-x-reverse font-mono text-[11px] text-teal-800">
-            <span>UAE PDPL & ADHICS Compliant Design</span>
-            <span>·</span>
-            <span>Policy Hash: 368b1932f91a56bc</span>
+      {/* 7. Footer (App view only) */}
+      {currentView === 'app' && (
+        <footer className="mt-auto border-t border-sand-200 py-6 text-center text-xs text-slate-500">
+          <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3">
+            <span>Rebound — Sustaining Healthy Behaviors · Abu Dhabi Pilot Ready</span>
+            <div className="flex items-center space-x-3 rtl:space-x-reverse font-mono text-[11px] text-teal-800">
+              <span>UAE PDPL & ADHICS Compliant Design</span>
+              <span>·</span>
+              <span>Policy Hash: 368b1932f91a56bc</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
+
+      {/* 8. Floating Accessibility & Judge Lab Widget */}
+      <DemoBar
+        locale={locale}
+        setLocale={setLocale}
+        activePersona={activePersona}
+        setActivePersona={(p) => {
+          setActivePersona(p);
+          setCurrentView('app');
+        }}
+        onLapseTriggered={() => {
+          setCurrentView('app');
+          setActiveTab('today');
+          loadAllData();
+        }}
+        onOpenGovernorModal={() => {
+          setCurrentView('app');
+          setActiveTab('governor');
+        }}
+        onOpenJudgeTour={() => setShowJudgeTour(true)}
+        onRefreshData={loadAllData}
+      />
     </div>
   );
 };
